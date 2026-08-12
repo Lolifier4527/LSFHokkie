@@ -225,11 +225,11 @@ function renderMatch(data){
   document.getElementById('root').innerHTML=html;
 }
 
-// Public viewers (other devices) subscribe read-only. Leave empty by default —
-// generate an Ably key scoped to "subscribe" only on the "fairland-hokkie-*"
-// channel namespace and paste it here, or have viewers rely on the scorer's own
-// key via Settings (same device only, via localStorage fallback below).
-const PUBLIC_ABLY_KEY = "";
+// Public viewers (other devices) subscribe read-only. Reusing the scorer's key
+// here for convenience — it has publish rights too, more than a viewer strictly
+// needs, so swap in a subscribe-only key scoped to "fairland-hokkie-*" later if
+// you want tighter scoping.
+const PUBLIC_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJibM";
 
 function loadMatch(){
   const key=getSetting('ablyKey')||PUBLIC_ABLY_KEY;
