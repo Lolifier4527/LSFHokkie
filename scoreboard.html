@@ -367,8 +367,13 @@ function switchInn(idx){
   pane.innerHTML=html;
 }
 
+// Public viewers (other devices) use this key to subscribe read-only — no per-device setup needed.
+// Use an Ably key scoped to "subscribe" capability only (not the full/root key) so a leaked
+// public key can't be used to publish or manage your account. Paste it between the quotes below.
+const PUBLIC_ABLY_KEY = "RrGsHw.hvYJ6A:jwCtaT5fUuHyQA-a4aDL4hnH2N-MBbLILidZBDlqLgw";
+
 function loadMatch(){
-  const key=getSetting('ablyKey');
+  const key=getSetting('ablyKey')||PUBLIC_ABLY_KEY;
   if(key&&matchId){
     try{
       const ably=new Ably.Realtime({key,closeOnUnload:true});
