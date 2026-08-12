@@ -823,24 +823,31 @@ function downloadCSV() {
   a.click(); URL.revokeObjectURL(url);
 }
 function copyLink() {
-  if(!match)return;
-  const link = window.location.href.replace('index.html','')+'scoreboard.html?match='+(match.shareId||match.id);
+  // Constant link — always shows whichever match is currently active, so it only
+  // needs to be shared once and keeps working for every future match too.
+  const link = window.location.href.replace('index.html','')+'scoreboard.html';
   navigator.clipboard.writeText(link).then(()=>alert('Link copied!\n\n'+link)).catch(()=>prompt('Copy link:',link));
 }
 
 // ─── ably sync ────────────────────────────────────────────────────────────────
+// The "live" channel always mirrors whichever match is currently active on this
+// device, so a single scoreboard link keeps working match after match without
+// being re-shared. Each match also still gets its own fairland-hokkie-<shareId>
+// channel, for anyone holding an old direct link to a specific match.
+const LIVE_CHANNEL = 'fairland-hokkie-live';
 function syncFb() {
   if(!ablyClient||!match)return;
   try {
-    const ch = ablyClient.channels.get('fairland-hokkie-'+(match.shareId||match.id));
-    ch.publish('score', {
+    const payload = {
       id:match.id, shareId:match.shareId,
       teams:match.teams.map(t=>({name:t.name})),
       date:match.date, venue:match.venue, format:match.format,
       quarterMinutes:match.quarterMinutes, numQuarters:match.numQuarters, quarter:match.quarter,
       status:match.status, result:match.result, updatedAt:Date.now(),
       events:match.events, timer:match.timer
-    });
+    };
+    ablyClient.channels.get('fairland-hokkie-'+(match.shareId||match.id)).publish('score', payload);
+    ablyClient.channels.get(LIVE_CHANNEL).publish('score', payload);
   } catch(e) { console.warn('Ably:', e.message); }
 }
 

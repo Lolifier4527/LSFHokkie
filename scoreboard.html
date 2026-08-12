@@ -253,13 +253,19 @@ function renderMatch(data){
 // you want tighter scoping.
 const PUBLIC_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJibM";
 
+// No ?match= param -> follow the constant "live" channel, which always mirrors
+// whichever match the scorer currently has open. A ?match=<id> param still
+// pins this page to one specific match's own channel, for old shared links.
+const LIVE_CHANNEL = 'fairland-hokkie-live';
+const channelName = matchId ? 'fairland-hokkie-'+matchId : LIVE_CHANNEL;
+
 function loadMatch(){
   const key=getSetting('ablyKey')||PUBLIC_ABLY_KEY;
-  if(key&&matchId){
+  if(key){
     try{
       const ably=new Ably.Realtime({key,closeOnUnload:true});
       // [?rewind=1] replays the last published message so latecomers see current score immediately
-      const ch=ably.channels.get('[?rewind=1]fairland-hokkie-'+matchId);
+      const ch=ably.channels.get('[?rewind=1]'+channelName);
       ch.subscribe('score',msg=>renderMatch(msg.data));
       return;
     }catch(e){console.warn('Ably:',e.message);}
@@ -268,6 +274,10 @@ function loadMatch(){
   if(matchId){
     const h=JSON.parse(localStorage.getItem('cs_h')||'[]');
     const m=h.find(x=>(x.shareId||x.id)===matchId||x.id===matchId);
+    if(m){renderMatch(m);return;}
+  } else {
+    const h=JSON.parse(localStorage.getItem('cs_h')||'[]');
+    const m=h.find(x=>x.status==='active')||h[0];
     if(m){renderMatch(m);return;}
   }
   document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏑</div><h2>No match data</h2><p>Add your Ably API key in the scorer app settings, or open this link on the same device as the scorer.</p></div>`;
