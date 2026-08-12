@@ -54,43 +54,15 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
 .card-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
 
 /* score hero */
-.score-big{font-size:60px;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-big{font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .score-sub{font-size:13px;color:var(--t3);margin-top:6px}
-.rr-num{font-size:26px;font-weight:900;color:var(--t2)}
-.rr-lbl{font-size:11px;color:var(--t3);margin-top:2px}
-.target-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--glass-b)}
-.tg-item{text-align:center}
-.tg-val{font-size:20px;font-weight:800}
-.tg-lbl{font-size:11px;color:var(--t3);margin-top:2px}
 
-/* batter rows */
-.batter-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--glass-b)}
-.batter-row:last-child{border-bottom:none}
-.b-dot{width:7px;height:7px;border-radius:50%;background:var(--s4);flex-shrink:0}
-.b-dot.striker{background:var(--accent)}
-.b-name{font-weight:700;font-size:14px;margin-left:8px}
-.b-name.striker{color:var(--accent)}
-.b-sub{font-size:11px;color:var(--muted);margin-top:1px;margin-left:8px}
-.b-runs{font-size:22px;font-weight:900;text-align:right}
-.b-runs.striker{color:var(--accent)}
-.b-balls{font-size:11px;color:var(--muted);text-align:right;margin-top:1px}
-.bowler-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--glass-b);margin-top:4px}
-
-/* chips / extras */
-.extras-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.ex-chip{font-size:12px;color:var(--t2);background:var(--s2);border-radius:5px;padding:3px 8px;border:1px solid var(--glass-b)}
-.ex-total{font-size:16px;font-weight:800;color:var(--t1)}
-
-/* fow chips */
-.fow-chip{display:inline-block;background:var(--s2);color:var(--t2);border-radius:5px;padding:2px 7px;font-size:11px;margin:2px;border:1px solid var(--glass-b)}
+/* chips */
+.meta-chip{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--glass-b);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--t2)}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 
 /* result banner */
 .result-banner{background:linear-gradient(145deg,rgba(56,189,248,.1),rgba(56,189,248,.04));border:1px solid rgba(234,179,8,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
-
-/* inn tabs */
-.inn-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.itab{padding:6px 14px;border-radius:20px;border:1px solid var(--s4);background:transparent;color:var(--t3);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s}
-.itab.on{background:linear-gradient(135deg,#14532d,#14532d);color:#86efac;border-color:rgba(22,163,74,.4)}
 
 /* table */
 .sc-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -98,13 +70,6 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
 .sc-table td{padding:7px 5px;border-bottom:1px solid rgba(255,255,255,.04)}
 .sc-table .tr{text-align:right}
 .sc-table .bold{font-weight:700;color:var(--accent)}
-
-/* meta chips */
-.meta-chip{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--glass-b);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--t2)}
-.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-
-/* free hit */
-.freehit{display:inline-block;background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,191,36,.08));color:#fbbf24;border:1px solid rgba(251,191,36,.35);border-radius:8px;padding:4px 14px;font-size:13px;font-weight:700;margin-bottom:10px;box-shadow:0 0 16px rgba(251,191,36,.12)}
 
 /* empty / loading */
 .empty{text-align:center;padding:60px 20px;color:var(--t3)}
@@ -150,7 +115,7 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
 
 <main id="root">
   <div class="empty">
-    <div class="empty-icon">🏏</div>
+    <div class="empty-icon">🏑</div>
     <p>Loading match data…</p>
   </div>
 </main>
@@ -167,17 +132,58 @@ const params=new URLSearchParams(window.location.search);
 const matchId=params.get('match');
 
 function getSetting(k){return JSON.parse(localStorage.getItem('cs_settings')||'{}')[k]||'';}
-function ovStr(lb){return Math.floor(lb/6)+'.'+lb%6;}
 function getP(teams,id){for(const t of(teams||[])){const p=(t.players||[]).find(p=>p.id===id);if(p)return p;}return null;}
 function pName(teams,id){return getP(teams,id)?.name||id;}
 
+function computeScore(m){
+  const s=[0,0];
+  (m.events||[]).forEach(e=>{
+    if(e.type==='goal') s[e.team]++;
+    else if((e.type==='pc'||e.type==='stroke')&&e.outcome==='goal') s[e.team]++;
+  });
+  return s;
+}
+function cardsTally(m,teamIdx){
+  const c={green:0,yellow:0,red:0};
+  (m.events||[]).filter(e=>e.type==='card'&&e.team===teamIdx).forEach(e=>c[e.color]++);
+  return c;
+}
+function pcStats(m,teamIdx){
+  const evs=(m.events||[]).filter(e=>e.type==='pc'&&e.team===teamIdx);
+  return {awarded:evs.length,converted:evs.filter(e=>e.outcome==='goal').length};
+}
+function strokeStats(m,teamIdx){
+  const evs=(m.events||[]).filter(e=>e.type==='stroke'&&e.team===teamIdx);
+  return {awarded:evs.length,converted:evs.filter(e=>e.outcome==='goal').length};
+}
+function goalScorers(m,teamIdx){
+  const map={};
+  (m.events||[]).forEach(e=>{
+    if(e.team!==teamIdx)return;
+    const scored=e.type==='goal'||((e.type==='pc'||e.type==='stroke')&&e.outcome==='goal');
+    if(scored&&e.player){map[e.player]=map[e.player]||{goals:0,assists:0};map[e.player].goals++;}
+    if(e.type==='goal'&&e.assist){map[e.assist]=map[e.assist]||{goals:0,assists:0};map[e.assist].assists++;}
+  });
+  return Object.entries(map).map(([id,v])=>({id,name:pName(m.teams,id),...v})).sort((a,b)=>b.goals-a.goals);
+}
+function eventLabel(m,e){
+  const p=id=>pName(m.teams,id);
+  switch(e.type){
+    case 'goal': return '⚽ Goal — '+p(e.player)+(e.assist?' (assist '+p(e.assist)+')':'');
+    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card — '+p(e.player); }
+    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
+    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
+    case 'sub': return '🔄 Sub — '+p(e.in)+' on for '+p(e.out);
+  }
+  return '';
+}
+
 function renderMatch(data){
   if(!data){
-    document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏏</div><h2>Match not found</h2><p>The match may not have started yet, or Firebase isn't configured.<br>Ask the scorer to share an updated link.</p></div>`;
+    document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏑</div><h2>Match not found</h2><p>The match may not have started yet, or the Ably key isn't configured.<br>Ask the scorer to share an updated link.</p></div>`;
     return;
   }
-  const m=data, teams=m.teams||[], innings=m.innings||[];
-  const curInn=innings[innings.length-1];
+  const m=data, teams=m.teams||[];
   let html='';
 
   // Result banner
@@ -192,185 +198,52 @@ function renderMatch(data){
   if(m.format)chips.push(`<span class="meta-chip">${m.format}</span>`);
   if(chips.length)html+=`<div class="meta-row">${chips.join('')}</div>`;
 
-  if(!curInn){
-    html+=`<div class="card" style="text-align:center;padding:40px">Match hasn't started yet.</div>`;
-    document.getElementById('root').innerHTML=html;
-    return;
-  }
-
-  const bt=teams[curInn.bi]||{}, rr=curInn.lb>0?((curInn.total/curInn.lb)*6).toFixed(2):'0.00';
+  const s=computeScore(m);
 
   // Hero score
   html+=`<div class="card">
     <div class="card-label">${(teams[0]||{}).name||'Team 1'} vs ${(teams[1]||{}).name||'Team 2'}</div>
-    ${curInn.freeHit?`<div class="freehit">⚡ FREE HIT</div><br>`:''}
-    <div style="display:flex;justify-content:space-between;align-items:flex-end">
-      <div>
-        <div class="score-big">${curInn.total}/${curInn.wickets}</div>
-        <div class="score-sub">${bt.name||''} · ${ovStr(curInn.lb)} overs</div>
+    <div style="display:flex;justify-content:space-around;align-items:center">
+      <div style="text-align:center"><div class="score-big">${s[0]}</div><div class="score-sub">${(teams[0]||{}).name||''}</div></div>
+      <div style="text-align:center;color:var(--muted)">
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">Quarter</div>
+        <div style="font-size:22px;font-weight:900;color:var(--accent)">${m.quarter||1}</div>
       </div>
-      <div style="text-align:right">
-        <div class="rr-num">${rr}</div>
-        <div class="rr-lbl">run rate</div>
-      </div>
+      <div style="text-align:center"><div class="score-big">${s[1]}</div><div class="score-sub">${(teams[1]||{}).name||''}</div></div>
+    </div>
+  </div>`;
+
+  // Per-team stats
+  [0,1].forEach(ti=>{
+    const t=teams[ti]||{}, scorers=goalScorers(m,ti), cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
+    html+=`<div class="card"><div class="card-label">${t.name||('Team '+(ti+1))}</div>
+      ${scorers.length?`<table class="sc-table"><thead><tr><th>Scorer</th><th class="tr">Goals</th><th class="tr">Assists</th></tr></thead><tbody>${scorers.map(sc=>`<tr><td>${sc.name}</td><td class="tr bold">${sc.goals}</td><td class="tr">${sc.assists}</td></tr>`).join('')}</tbody></table>`:'<div style="font-size:13px;color:var(--muted)">No goals yet</div>'}
+      <div style="margin-top:10px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
+      <div style="margin-top:4px;font-size:12px;color:var(--t2)">Penalty Corners: ${pc.converted}/${pc.awarded} converted · Penalty Strokes: ${st.converted}/${st.awarded} converted</div>
     </div>`;
+  });
 
-  // Target info
-  if(innings.length>=2){
-    const prev=innings.find(i=>i.bi!==curInn.bi);
-    if(prev&&!curInn.complete){
-      const target=prev.total+1, need=Math.max(0,target-curInn.total);
-      const ballsLeft=m.oversPerInnings>0?(m.oversPerInnings*6)-curInn.lb:null;
-      const rrr=(ballsLeft&&need>0)?((need/ballsLeft)*6).toFixed(2):null;
-      html+=`<div class="target-grid">
-        <div class="tg-item"><div class="tg-val">${target}</div><div class="tg-lbl">target</div></div>
-        <div class="tg-item"><div class="tg-val" style="color:${need>30?'var(--red)':'var(--t1)'}">${need}</div><div class="tg-lbl">needed</div></div>
-        ${rrr?`<div class="tg-item"><div class="tg-val" style="color:var(--amber)">${rrr}</div><div class="tg-lbl">req. rate</div></div>`:'<div></div>'}
-      </div>`;
-    }
-  }
-  html+=`</div>`;
-
-  // Batters at crease
-  const active=curInn.activeBatters||[], batters=curInn.batters||{};
-  if(active.length){
-    html+=`<div class="card"><div class="card-label">At the crease</div>`;
-    active.forEach((id,idx)=>{
-      const b=batters[id]||{runs:0,balls:0,fours:0,sixes:0}, isS=idx===0;
-      const sr=b.balls>0?((b.runs/b.balls)*100).toFixed(0):'0';
-      html+=`<div class="batter-row">
-        <div style="display:flex;align-items:flex-start">
-          <div class="b-dot${isS?' striker':''}"></div>
-          <div><div class="b-name${isS?' striker':''}">${pName(teams,id)}${isS?' *':''}</div><div class="b-sub">SR ${sr} · ${b.fours||0}×4 · ${b.sixes||0}×6</div></div>
-        </div>
-        <div><div class="b-runs${isS?' striker':''}">${b.runs}</div><div class="b-balls">${b.balls} balls</div></div>
-      </div>`;
+  // Match log
+  if((m.events||[]).length){
+    html+=`<div class="card" style="overflow-x:auto"><div class="card-label">Match Log</div>
+      <table class="sc-table"><thead><tr><th>Q</th><th>Team</th><th>Event</th></tr></thead><tbody>`;
+    m.events.forEach(e=>{
+      html+=`<tr><td>${e.quarter}</td><td>${teams[e.team]?.name||''}</td><td>${eventLabel(m,e)}</td></tr>`;
     });
-
-    // Bowler
-    const bwlId=curInn.activeBowler;
-    if(bwlId){
-      const bwl=(curInn.bowlers||{})[bwlId]||{};
-      const eco=bwl.lb>0?((bwl.runs/bwl.lb)*6).toFixed(1):'-';
-      html+=`<div class="bowler-row">
-        <div style="font-size:12px;color:var(--t3)">Bowling: <span style="color:var(--t2);font-weight:600">${pName(teams,bwlId)}</span></div>
-        <div style="font-size:12px;color:var(--t3)">${bwl.wickets||0}/${bwl.runs||0} (${ovStr(bwl.lb||0)}) · eco ${eco}</div>
-      </div>`;
-    }
-    html+=`</div>`;
-  }
-
-  // Extras
-  const ex=curInn.extras||{}, exT=(ex.b||0)+(ex.lb||0)+(ex.wd||0)+(ex.nb||0)+(ex.pen||0);
-  html+=`<div class="card"><div class="extras-row">
-    <span class="card-label" style="margin:0">Extras</span>
-    <span class="ex-total">${exT}</span>
-    <span class="ex-chip">b ${ex.b||0}</span>
-    <span class="ex-chip">lb ${ex.lb||0}</span>
-    <span class="ex-chip">wd ${ex.wd||0}</span>
-    <span class="ex-chip">nb ${ex.nb||0}</span>
-    ${ex.pen?`<span class="ex-chip">pen ${ex.pen}</span>`:''}
-  </div></div>`;
-
-  // FoW
-  if((curInn.fow||[]).length){
-    html+=`<div class="card"><div class="card-label">Fall of wickets</div><div>`;
-    curInn.fow.forEach(f=>{html+=`<span class="fow-chip">${f.w}-${f.runs} (${pName(teams,f.bat)}, ${f.ov})</span>`;});
-    html+=`</div></div>`;
-  }
-
-  // Innings tabs
-  if(innings.length>1){
-    html+=`<div class="card-label" style="margin-top:8px">All innings</div>
-      <div class="inn-tabs" id="innTabs">`;
-    innings.forEach((inn,i)=>{
-      const t=teams[inn.bi]||{}, active=i===innings.length-1;
-      html+=`<button class="itab${active?' on':''}" onclick="switchInn(${i})">${t.name}: ${inn.total}/${inn.wickets}</button>`;
-    });
-    html+=`</div><div id="innDetail"></div>`;
+    html+=`</tbody></table></div>`;
   }
 
   const upd=m.updatedAt?new Date(m.updatedAt).toLocaleTimeString():'';
   if(upd)html+=`<div class="updated">Last updated ${upd}</div>`;
 
   document.getElementById('root').innerHTML=html;
-  window._sbMatch=m;
-  if(innings.length>1)switchInn(innings.length-1);
 }
 
-function switchInn(idx){
-  const m=window._sbMatch; if(!m)return;
-  document.querySelectorAll('.itab').forEach((el,i)=>el.classList.toggle('on',i===idx));
-  const inn=m.innings[idx], pane=document.getElementById('innDetail');
-  if(!inn||!pane)return;
-  const bt=m.teams[inn.bi]||{}, bwt=m.teams[inn.wi]||{};
-  const active=inn.activeBatters||[];
-  const seen=new Set(), order=[];
-  (inn.balls||[]).forEach(b=>{if(!seen.has(b.bat)){seen.add(b.bat);order.push(b.bat);}});
-  (bt.players||[]).forEach(p=>{if(!seen.has(p.id))order.push(p.id);});
-
-  let html=`<div class="card" style="overflow-x:auto"><div class="card-label">${bt.name} batting · ${inn.total}/${inn.wickets} (${ovStr(inn.lb)})</div>
-    <table class="sc-table"><thead><tr>
-      <th>Batter</th><th>Dismissal</th><th class="tr">R</th><th class="tr">B</th><th class="tr">4s</th><th class="tr">6s</th><th class="tr">SR</th>
-    </tr></thead><tbody>`;
-
-  order.forEach(id=>{
-    const b=inn.batters?.[id], isA=active.includes(id);
-    if(!b&&!isA)return;
-    const br=b||{runs:0,balls:0,fours:0,sixes:0,howOut:null};
-    const sr=br.balls>0?((br.runs/br.balls)*100).toFixed(0):'-';
-    let out='did not bat';
-    if(isA)out='not out';
-    else if(br.howOut){
-      const bp=br.bowler?pName(m.teams,br.bowler):null, fp=br.fielder?pName(m.teams,br.fielder):null;
-      if(br.howOut==='Bowled')out='b '+(bp||'');
-      else if(br.howOut==='Caught')out='c '+(fp||'')+' b '+(bp||'');
-      else if(br.howOut==='LBW')out='lbw b '+(bp||'');
-      else if(br.howOut==='Run Out')out='run out ('+(fp||'')+')';
-      else if(br.howOut==='Stumped')out='st '+(fp||'')+' b '+(bp||'');
-      else out=br.howOut;
-    }
-    const dnb=out==='did not bat';
-    html+=`<tr${dnb?' style="opacity:.4"':''}>
-      <td style="font-weight:700;color:${isA?'var(--accent)':'var(--t1)'}">${pName(m.teams,id)}${isA&&active[0]===id?' *':''}</td>
-      <td style="font-size:11px;color:var(--muted)">${out}</td>
-      <td class="tr bold">${dnb?'':br.runs}</td><td class="tr">${dnb?'':br.balls}</td>
-      <td class="tr">${dnb?'':br.fours||0}</td><td class="tr">${dnb?'':br.sixes||0}</td><td class="tr">${dnb?'':sr}</td>
-    </tr>`;
-  });
-  const ex=inn.extras||{}, exT=(ex.b||0)+(ex.lb||0)+(ex.wd||0)+(ex.nb||0)+(ex.pen||0);
-  html+=`<tr><td colspan="2" style="font-size:11px;color:var(--t3)">Extras (b ${ex.b||0} lb ${ex.lb||0} wd ${ex.wd||0} nb ${ex.nb||0})</td><td class="tr bold">${exT}</td><td colspan="4"></td></tr>
-  <tr style="background:rgba(255,255,255,.03)"><td colspan="2" style="font-weight:800">Total</td><td class="tr bold" style="font-size:14px">${inn.total}/${inn.wickets}</td><td colspan="4" style="text-align:right;font-size:11px;color:var(--t3)">${ovStr(inn.lb)} ov</td></tr>
-  </tbody></table></div>`;
-
-  if((inn.fow||[]).length){
-    html+=`<div class="card"><div class="card-label">Fall of wickets</div><div>`;
-    inn.fow.forEach(f=>{html+=`<span class="fow-chip">${f.w}-${f.runs} (${pName(m.teams,f.bat)}, ${f.ov})</span>`;});
-    html+=`</div></div>`;
-  }
-
-  html+=`<div class="card" style="overflow-x:auto"><div class="card-label">${bwt.name} bowling</div>
-    <table class="sc-table"><thead><tr>
-      <th>Bowler</th><th class="tr">O</th><th class="tr">M</th><th class="tr">R</th><th class="tr">W</th><th class="tr">Wd</th><th class="tr">NB</th><th class="tr">Eco</th>
-    </tr></thead><tbody>`;
-
-  [...new Set((inn.balls||[]).map(b=>b.bwl))].forEach(id=>{
-    const bwl=inn.bowlers?.[id]||{};
-    const ov=Math.floor((bwl.lb||0)/6)+'.'+(bwl.lb||0)%6;
-    const eco=bwl.lb>0?((bwl.runs/bwl.lb)*6).toFixed(1):'-';
-    html+=`<tr><td style="font-weight:700">${pName(m.teams,id)}</td>
-      <td class="tr">${ov}</td><td class="tr">${bwl.maidens||0}</td>
-      <td class="tr">${bwl.runs||0}</td><td class="tr bold">${bwl.wickets||0}</td>
-      <td class="tr">${bwl.wides||0}</td><td class="tr">${bwl.noballs||0}</td><td class="tr">${eco}</td></tr>`;
-  });
-  html+=`</tbody></table></div>`;
-  pane.innerHTML=html;
-}
-
-// Public viewers (other devices) use this key to subscribe read-only — no per-device setup needed.
-// Use an Ably key scoped to "subscribe" capability only (not the full/root key) so a leaked
-// public key can't be used to publish or manage your account. Paste it between the quotes below.
-const PUBLIC_ABLY_KEY = "RrGsHw.hvYJ6A:jwCtaT5fUuHyQA-a4aDL4hnH2N-MBbLILidZBDlqLgw";
+// Public viewers (other devices) subscribe read-only. Leave empty by default —
+// generate an Ably key scoped to "subscribe" only on the "fairland-hokkie-*"
+// channel namespace and paste it here, or have viewers rely on the scorer's own
+// key via Settings (same device only, via localStorage fallback below).
+const PUBLIC_ABLY_KEY = "";
 
 function loadMatch(){
   const key=getSetting('ablyKey')||PUBLIC_ABLY_KEY;
@@ -378,7 +251,7 @@ function loadMatch(){
     try{
       const ably=new Ably.Realtime({key,closeOnUnload:true});
       // [?rewind=1] replays the last published message so latecomers see current score immediately
-      const ch=ably.channels.get('[?rewind=1]fairland-cricket-'+matchId);
+      const ch=ably.channels.get('[?rewind=1]fairland-hokkie-'+matchId);
       ch.subscribe('score',msg=>renderMatch(msg.data));
       return;
     }catch(e){console.warn('Ably:',e.message);}
@@ -389,7 +262,7 @@ function loadMatch(){
     const m=h.find(x=>(x.shareId||x.id)===matchId||x.id===matchId);
     if(m){renderMatch(m);return;}
   }
-  document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏏</div><h2>No match data</h2><p>Add your Ably API key in the scorer app settings, or open this link on the same device as the scorer.</p></div>`;
+  document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏑</div><h2>No match data</h2><p>Add your Ably API key in the scorer app settings, or open this link on the same device as the scorer.</p></div>`;
 }
 
 loadMatch();
