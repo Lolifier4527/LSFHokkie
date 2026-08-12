@@ -202,6 +202,13 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   <button class="hdr-btn" onclick="showScr('settings')">&#9881;</button>
 </header>
 
+<div id="fieldWarning" style="display:none;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(248,113,113,.12);border-bottom:1px solid rgba(248,113,113,.35);color:#fca5a5;
+  padding:10px 16px;font-size:13px;font-weight:600;position:sticky;top:53px;z-index:49">
+  <span>&#9888;&#65039; Another device also appears to be scoring this field — scores may conflict.</span>
+  <button onclick="dismissFieldWarning()" style="background:none;border:none;color:#fca5a5;font-size:18px;cursor:pointer;line-height:1;flex-shrink:0">&#10005;</button>
+</div>
+
 <!-- HOME -->
 <div class="scr on" id="s-home">
   <div class="school-hero">
@@ -421,6 +428,12 @@ const _fieldParam = new URLSearchParams(location.search).get('field');
 if (_fieldParam) localStorage.setItem('cs_field', _fieldParam);
 const FIELD = _fieldParam || localStorage.getItem('cs_field') || '1';
 
+// Per-tab identity, used to tell "another device/tab scoring this field" apart
+// from "this same tab reconnecting" when checking for duplicate scorers below.
+const SESSION_ID = sessionStorage.getItem('cs_session')
+  || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'sess_'+Math.random().toString(36).slice(2)+Date.now());
+sessionStorage.setItem('cs_session', SESSION_ID);
+
 // ─── nav ──────────────────────────────────────────────────────────────────────
 const SETUP_SCREENS = ['setup-format','setup-teams','setup-toss','qbreak','matchend'];
 const TITLES = {
@@ -483,12 +496,58 @@ function initAbly(key) {
   if (!key) return;
   try {
     if (ablyClient) { ablyClient.close(); ablyClient = null; }
-    ablyClient = new Ably.Realtime({ key, closeOnUnload: true });
+    ablyClient = new Ably.Realtime({ key, clientId: SESSION_ID, closeOnUnload: true });
     // Republish immediately once connected, so an active match becomes visible to new
     // viewers right away instead of waiting for the next scoring action (also covers
     // the case where the key was just added/changed and nothing has synced yet).
-    ablyClient.connection.once('connected', () => { if (match) syncFb(); });
+    ablyClient.connection.once('connected', () => {
+      if (match) syncFb();
+      claimField();
+    });
   } catch(e) { console.warn('Ably:', e.message); }
+}
+
+// ─── duplicate-scorer detection ────────────────────────────────────────────────
+// Announce this tab as scoring FIELD by publishing a "claim" heartbeat on its
+// live channel, and warn (without blocking) if another tab/device's claim is
+// also active there — two scorers on the same field would otherwise silently
+// stomp on each other's published state. Built on plain publish/subscribe
+// (rather than Ably presence) since the deployed key isn't granted the
+// separate "presence" capability. A claim without a fresh heartbeat for 40s is
+// treated as gone (its tab likely closed) — same staleness pattern used for
+// the live scoreboard's auto-reload.
+const CLAIM_HEARTBEAT_MS = 15000, CLAIM_STALE_MS = 40000;
+let otherClaims = {}, claimChannel = null;
+function claimField() {
+  if (!ablyClient) return;
+  try {
+    claimChannel = ablyClient.channels.get(LIVE_CHANNEL);
+    claimChannel.subscribe('claim', msg => {
+      const sid = msg.data && msg.data.sessionId;
+      if (!sid || sid === SESSION_ID) return;
+      otherClaims[sid] = Date.now();
+      updateFieldWarning();
+    });
+    publishClaim();
+  } catch(e) { console.warn('Ably claim:', e.message); }
+}
+function publishClaim() {
+  if (!claimChannel) return;
+  try { claimChannel.publish('claim', {sessionId:SESSION_ID}); } catch(e) {}
+}
+setInterval(() => {
+  publishClaim();
+  const now = Date.now();
+  Object.keys(otherClaims).forEach(sid => { if (now-otherClaims[sid] > CLAIM_STALE_MS) delete otherClaims[sid]; });
+  updateFieldWarning();
+}, CLAIM_HEARTBEAT_MS);
+function updateFieldWarning() {
+  const el = document.getElementById('fieldWarning');
+  if (el) el.style.display = Object.keys(otherClaims).length ? 'flex' : 'none';
+}
+function dismissFieldWarning() {
+  const el = document.getElementById('fieldWarning');
+  if (el) el.style.display = 'none';
 }
 
 // ─── setup ────────────────────────────────────────────────────────────────────
