@@ -546,6 +546,11 @@ function tickTimer() {
 }
 setInterval(tickTimer, 500);
 
+// Keep-alive: during quiet stretches of play with no goals/cards, nothing would
+// otherwise get published. Viewers use the gap since the last message to detect
+// a dropped connection, so republish periodically even when nothing changed.
+setInterval(() => { if (match && match.status === 'active') syncFb(); }, 20000);
+
 // ─── derived state (single source of truth = match.events) ────────────────────
 function computeScore(m) {
   const s=[0,0];

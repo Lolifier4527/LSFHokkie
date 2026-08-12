@@ -259,6 +259,22 @@ const PUBLIC_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJi
 const LIVE_CHANNEL = 'fairland-hokkie-live';
 const channelName = matchId ? 'fairland-hokkie-'+matchId : LIVE_CHANNEL;
 
+// Mobile browsers suspend the realtime connection when the tab/screen is
+// backgrounded, and during quiet stretches of play (no goals/cards) nothing gets
+// published to notice the drop by. Track the last message time and, if this tab
+// is visible but has gone quiet during an active match, reload to force a fresh
+// subscribe — cheaper and more reliable than hand-rolling reconnect logic.
+let lastDataAt=Date.now();
+function heartbeatCheck(){
+  if(document.visibilityState!=='visible')return;
+  const m=window._sbMatch;
+  if(!m||m.status!=='active')return;
+  if(Date.now()-lastDataAt>40000) location.reload();
+}
+setInterval(heartbeatCheck,15000);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') heartbeatCheck(); });
+window.addEventListener('online',()=>{ if(window._sbMatch&&window._sbMatch.status==='active') location.reload(); });
+
 function loadMatch(){
   const key=getSetting('ablyKey')||PUBLIC_ABLY_KEY;
   if(key){
@@ -266,7 +282,7 @@ function loadMatch(){
       const ably=new Ably.Realtime({key,closeOnUnload:true});
       // [?rewind=1] replays the last published message so latecomers see current score immediately
       const ch=ably.channels.get('[?rewind=1]'+channelName);
-      ch.subscribe('score',msg=>renderMatch(msg.data));
+      ch.subscribe('score',msg=>{ lastDataAt=Date.now(); renderMatch(msg.data); });
       return;
     }catch(e){console.warn('Ably:',e.message);}
   }
