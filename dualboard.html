@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dual Scoreboard — Laerskool Fairland</title>
+<style>
+:root{
+  --bg:#090a0f;--s1:#111318;--s2:#191c25;--s3:#242836;--s4:#2e3347;
+  --accent:#eab308;--accent-glow:rgba(234,179,8,.15);
+  --green:#34d399;--red:#f87171;--amber:#fbbf24;--purple:#a78bfa;
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;--muted:#475569;
+  --glass:rgba(255,255,255,.03);--glass-b:rgba(255,255,255,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;overflow:hidden}
+
+/* splash */
+#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+#splash.fade-out{animation:splashOut .6s ease forwards}
+@keyframes splashOut{to{opacity:0}}
+.spl-logo{margin-bottom:18px;animation:splashIn .5s ease both}
+.spl-school{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-bottom:3px;animation:splashIn .5s .1s ease both}
+.spl-name{font-size:36px;font-weight:900;letter-spacing:.06em;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:splashIn .5s .15s ease both}
+.spl-hs{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:22px;animation:splashIn .5s .2s ease both}
+.spl-rule{width:40px;height:2px;background:linear-gradient(90deg,var(--accent),#15803d);border-radius:2px;margin-bottom:14px;animation:splashIn .5s .25s ease both}
+.spl-app{font-size:13px;color:var(--t3);letter-spacing:.08em;animation:splashIn .5s .3s ease both}
+@keyframes splashIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* layout */
+.boards{display:flex;height:100vh;width:100vw}
+.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3vh 2vw;min-width:0}
+.board.left{border-right:1px solid var(--glass-b)}
+
+.veld-label{position:absolute;top:3vh;left:50%;transform:translateX(-50%);font-size:clamp(12px,1.6vw,20px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--t3)}
+.live-wrap{position:absolute;top:3vh;right:3vw;display:flex;align-items:center;gap:6px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--red);position:relative}
+.live-dot::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:var(--red);opacity:.4;animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+.live-txt{font-size:clamp(10px,1.1vw,14px);font-weight:700;color:var(--red);letter-spacing:.06em}
+
+/* idle state: fills the pane with the school badge */
+.idle{display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.9}
+.idle img{width:clamp(90px,14vw,220px);margin-bottom:3vh}
+.idle .name{font-size:clamp(20px,3.2vw,52px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.idle .sub{font-size:clamp(10px,1.3vw,18px);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-top:6px}
+
+/* active state */
+.active{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.matchup{font-size:clamp(12px,1.6vw,22px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:2vh;text-align:center}
+.score-row{display:flex;align-items:center;justify-content:center;gap:3vw}
+.team{text-align:center;min-width:0}
+.team .num{font-size:clamp(64px,12vw,180px);font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.team .nm{font-size:clamp(14px,2vw,28px);color:var(--t2);margin-top:1vh;max-width:16vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qwrap{text-align:center;color:var(--muted)}
+.qwrap .qlbl{font-size:clamp(9px,1vw,13px);letter-spacing:.15em;text-transform:uppercase}
+.qwrap .qnum{font-size:clamp(20px,3vw,42px);font-weight:900;color:var(--accent)}
+.qwrap .qclock{font-size:clamp(13px,1.8vw,24px);font-weight:800;margin-top:.5vh}
+.result{margin-top:3vh;font-size:clamp(14px,2vw,26px);font-weight:800;color:var(--accent);text-align:center}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <img class="spl-logo" src="logo.png" width="130" alt="Laerskool Fairland">
+  <div class="spl-school">Laerskool</div>
+  <div class="spl-name">Fairland</div>
+  <div class="spl-hs">Primary School</div>
+  <div class="spl-rule"></div>
+  <div class="spl-app">Dual Scoreboard</div>
+</div>
+
+<div class="boards">
+  <div class="board left">
+    <div class="veld-label">Veld B</div>
+    <div class="live-wrap"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+    <div id="panel-2"></div>
+  </div>
+  <div class="board right">
+    <div class="veld-label">Veld A</div>
+    <div class="live-wrap"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+    <div id="panel-1"></div>
+  </div>
+</div>
+
+<script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+<script>
+(function(){
+  const s=document.getElementById('splash');
+  setTimeout(()=>{s.classList.add('fade-out');setTimeout(()=>s.remove(),650);},2400);
+})();
+
+// Right = Veld A = field 1, Left = Veld B = field 2 — fixed mapping for this
+// dedicated dual-display device (not driven by ?field=, since it always shows both).
+const SIDES = [{field:'1', panel:'panel-1'}, {field:'2', panel:'panel-2'}];
+
+// Same subscribe-only key as scoreboard.html.
+const PUBLIC_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJibM";
+
+function computeScore(m){
+  const s=[0,0];
+  (m.events||[]).forEach(e=>{
+    if(e.type==='goal') s[e.team]++;
+    else if((e.type==='pc'||e.type==='stroke')&&e.outcome==='goal') s[e.team]++;
+  });
+  return s;
+}
+function remainingMs(m){
+  if(!m||!m.timer) return null;
+  const total=(m.quarterMinutes||15)*60000;
+  const elapsed=m.timer.accumMs+(m.timer.startedAt?Date.now()-m.timer.startedAt:0);
+  return Math.max(0,total-elapsed);
+}
+function fmtClock(ms){
+  const s=Math.ceil(ms/1000), mm=Math.floor(s/60), ss=s%60;
+  return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+
+const boardMatch = {}, lastDataAt = {};
+
+function renderIdle(el){
+  el.innerHTML = `<div class="idle">
+    <img src="logo.png" alt="Laerskool Fairland">
+    <div class="name">Fairland</div>
+    <div class="sub">Laerskool &middot; Primary School</div>
+  </div>`;
+}
+function renderActive(el, m){
+  const teams=m.teams||[], s=computeScore(m);
+  el.innerHTML = `<div class="active">
+    <div class="matchup">${(teams[0]||{}).name||'Team 1'} vs ${(teams[1]||{}).name||'Team 2'}</div>
+    <div class="score-row">
+      <div class="team"><div class="num">${s[0]}</div><div class="nm">${(teams[0]||{}).name||''}</div></div>
+      <div class="qwrap">
+        <div class="qlbl">Quarter</div>
+        <div class="qnum">${m.quarter||1}</div>
+        <div class="qclock" data-clock></div>
+      </div>
+      <div class="team"><div class="num">${s[1]}</div><div class="nm">${(teams[1]||{}).name||''}</div></div>
+    </div>
+    ${(m.status==='complete'&&m.result)?`<div class="result">🏆 ${m.result}</div>`:''}
+  </div>`;
+}
+function renderBoard(field, panelId, data){
+  const el = document.getElementById(panelId);
+  boardMatch[field] = data;
+  if(!data){ renderIdle(el); return; }
+  renderActive(el, data);
+}
+function tickClocks(){
+  SIDES.forEach(({field,panel})=>{
+    const m = boardMatch[field];
+    if(!m||m.status!=='active') return;
+    const el = document.querySelector('#'+panel+' [data-clock]');
+    if(!el) return;
+    const rem = remainingMs(m);
+    if(rem===null) return;
+    el.textContent = fmtClock(rem);
+    el.style.color = rem<=60000 ? 'var(--red)' : '';
+  });
+}
+setInterval(tickClocks, 500);
+
+// Mobile/TV browsers can suspend the realtime connection when backgrounded, and
+// quiet stretches of play mean nothing republishes to reveal a dropped
+// connection. If either side goes stale during an active match, reload to force
+// a fresh subscribe on both.
+function heartbeatCheck(){
+  if(document.visibilityState!=='visible')return;
+  const stale = SIDES.some(({field})=>{
+    const m = boardMatch[field];
+    return m && m.status==='active' && (Date.now()-(lastDataAt[field]||0) > 40000);
+  });
+  if(stale) location.reload();
+}
+setInterval(heartbeatCheck, 15000);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') heartbeatCheck(); });
+window.addEventListener('online', heartbeatCheck);
+
+SIDES.forEach(({field,panel})=>{
+  renderIdle(document.getElementById(panel));
+  lastDataAt[field] = Date.now();
+  try{
+    const ably = new Ably.Realtime({key:PUBLIC_ABLY_KEY, closeOnUnload:true});
+    // [?rewind=1] replays the last published message so this loads with current data immediately
+    const ch = ably.channels.get('[?rewind=1]fairland-hokkie-live-'+field);
+    ch.subscribe('score', msg=>{ lastDataAt[field]=Date.now(); renderBoard(field, panel, msg.data); });
+  }catch(e){ console.warn('Ably:', e.message); }
+});
+</script>
+</body>
+</html>
