@@ -71,10 +71,6 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   box-shadow:0 0 12px rgba(234,179,8,.15),0 2px 8px rgba(0,0,0,.4)}
 .btn-primary:active{box-shadow:0 0 20px rgba(234,179,8,.3)}
 .btn-ghost{background:transparent;border:1px solid var(--s4);color:var(--t2)}
-.btn-danger{
-  background:linear-gradient(135deg,#7f1d1d,#5c1414);
-  border:1px solid rgba(248,113,113,.4);color:#fff;font-size:17px;padding:16px;
-  box-shadow:0 0 12px rgba(248,113,113,.15),0 2px 8px rgba(0,0,0,.4)}
 
 /* step bar */
 .steps{display:flex;gap:6px;margin-bottom:18px}
@@ -105,7 +101,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 .pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .pcbtn{background:var(--s2);color:var(--t1);border:1px solid var(--glass-border);border-radius:10px;padding:12px 4px;font-size:13px;font-weight:700;cursor:pointer}
 
-/* ball/event pips */
+/* event pips */
 .pips{display:flex;gap:5px;flex-wrap:wrap}
 .pip{min-width:30px;height:30px;padding:0 6px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
 .p-goal{background:#14532d;color:#86efac}
@@ -114,7 +110,6 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 .p-red{background:#7f1d1d;color:#fca5a5}
 .p-pc{background:#1e3a8a;color:#93c5fd}
 .p-stroke{background:#4c1d95;color:#c4b5fd}
-.p-sub{background:var(--s2);color:var(--t2)}
 
 /* tab bar */
 .tabs{position:fixed;bottom:0;left:0;right:0;
@@ -136,11 +131,9 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 .modal h2{color:var(--t1);font-size:18px;font-weight:700;margin-bottom:14px}
 .modal-close{float:right;background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer;margin-top:-4px}
 .dis-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.dbtn{padding:14px 8px;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);
+.dbtn{padding:16px 8px;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);
   border-radius:10px;color:var(--t1);cursor:pointer;font-size:14px;text-align:center;width:100%;transition:all .12s}
 .dbtn:hover,.dbtn:active{background:var(--accent-glow);border-color:rgba(234,179,8,.4);color:var(--accent)}
-.pl-item{padding:13px 12px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);font-size:15px;display:flex;justify-content:space-between;align-items:center}
-.pl-item:active{background:rgba(234,179,8,.07)}
 
 /* scorecard table */
 .sc-table{width:100%;border-collapse:collapse;font-size:12px}
@@ -237,7 +230,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 
 <!-- SETUP FORMAT -->
 <div class="scr" id="s-setup-format">
-  <div class="steps"><div class="step done"></div><div class="step"></div><div class="step"></div><div class="step"></div></div>
+  <div class="steps"><div class="step done"></div><div class="step"></div><div class="step"></div></div>
   <div class="card">
     <div class="card-label">Format</div>
     <div class="fg"><label>Match format</label>
@@ -263,47 +256,23 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   <button class="btn btn-primary" onclick="setupNext(1)">Next &rarr;</button>
 </div>
 
-<!-- SETUP TEAM 1 -->
-<div class="scr" id="s-setup-team1">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step"></div><div class="step"></div></div>
+<!-- SETUP TEAMS -->
+<div class="scr" id="s-setup-teams">
+  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step"></div></div>
   <div class="card">
     <div class="card-label">Team 1</div>
     <div class="fg"><label>Team name</label><input id="team1Name" type="text" placeholder="Home"></div>
   </div>
   <div class="card">
-    <div class="card-label">Starting Line-up (11)</div>
-    <div id="t1players"></div>
-  </div>
-  <div class="card">
-    <div class="card-label">Substitutes</div>
-    <div id="t1subs"></div>
-    <button class="btn btn-ghost" style="margin-top:6px;font-size:13px;padding:8px" onclick="addSub(1)">+ Add substitute</button>
+    <div class="card-label">Team 2</div>
+    <div class="fg"><label>Team name</label><input id="team2Name" type="text" placeholder="Away"></div>
   </div>
   <button class="btn btn-primary" onclick="setupNext(2)">Next &rarr;</button>
 </div>
 
-<!-- SETUP TEAM 2 -->
-<div class="scr" id="s-setup-team2">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step done"></div><div class="step"></div></div>
-  <div class="card">
-    <div class="card-label">Team 2</div>
-    <div class="fg"><label>Team name</label><input id="team2Name" type="text" placeholder="Away"></div>
-  </div>
-  <div class="card">
-    <div class="card-label">Starting Line-up (11)</div>
-    <div id="t2players"></div>
-  </div>
-  <div class="card">
-    <div class="card-label">Substitutes</div>
-    <div id="t2subs"></div>
-    <button class="btn btn-ghost" style="margin-top:6px;font-size:13px;padding:8px" onclick="addSub(2)">+ Add substitute</button>
-  </div>
-  <button class="btn btn-primary" onclick="setupNext(3)">Next &rarr;</button>
-</div>
-
 <!-- SETUP TOSS -->
 <div class="scr" id="s-setup-toss">
-  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step done"></div><div class="step done"></div></div>
+  <div class="steps"><div class="step done"></div><div class="step done"></div><div class="step done"></div></div>
   <div class="card">
     <div class="card-label">Coin Toss</div>
     <div class="fg"><label>Won by</label>
@@ -335,15 +304,15 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   </div>
 
   <div class="card" style="padding:10px 12px;margin-bottom:10px">
-    <div class="card-label" style="margin-bottom:6px">On the Pitch</div>
-    <div id="pitchSummary" style="font-size:12px;color:var(--t2);line-height:1.6"></div>
+    <div class="card-label" style="margin-bottom:6px">Match Stats</div>
+    <div id="statsSummary" style="font-size:12px;color:var(--t2);line-height:1.6"></div>
   </div>
 
   <!-- Goal -->
   <div class="sec-label">Goal</div>
   <div class="evt-grid">
-    <button class="evt-btn evt-a" onclick="openAction('goal',null,0)">&#9917; <span id="goalLblA"></span></button>
-    <button class="evt-btn evt-b" onclick="openAction('goal',null,1)">&#9917; <span id="goalLblB"></span></button>
+    <button class="evt-btn evt-a" onclick="logGoal(0)">&#9917; <span id="goalLblA"></span></button>
+    <button class="evt-btn evt-b" onclick="logGoal(1)">&#9917; <span id="goalLblB"></span></button>
   </div>
 
   <!-- Cards -->
@@ -360,8 +329,6 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
     <button class="pcbtn" onclick="openAction('pc')">Penalty Corner</button>
     <button class="pcbtn" onclick="openAction('stroke')">Penalty Stroke</button>
   </div>
-
-  <button class="btn btn-ghost" onclick="openAction('sub')">&#128260; Substitution</button>
 
   <div class="sec-label">Recent Events</div>
   <div class="pips" id="pipRow"></div>
@@ -422,7 +389,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   <button class="tab" id="tab-history" onclick="showTab('history')"><i class="ti ti-folder"></i><span>History</span></button>
 </nav>
 
-<!-- MODAL: ACTION (goal / card / pc / stroke / sub) -->
+<!-- MODAL: ACTION (card / pc / stroke) -->
 <div class="modal-bg" id="mAction" style="display:none">
   <div class="modal">
     <button class="modal-close" onclick="closeM('mAction');pendingAction=null">&#10005;</button>
@@ -438,16 +405,15 @@ let match = null, ablyClient = null, pendingAction = null;
 
 // Live-sync key: leave empty by default. Generate a fresh Ably key scoped to the
 // "fairland-hokkie-*" channel namespace (Settings screen explains how) and paste it
-// there — the old cricket app's keys were scoped to "fairland-cricket-*" only and
-// will NOT work here.
+// there.
 const SCORER_ABLY_KEY = "";
 
 // ─── nav ──────────────────────────────────────────────────────────────────────
-const SETUP_SCREENS = ['setup-format','setup-team1','setup-team2','setup-toss','qbreak','matchend'];
+const SETUP_SCREENS = ['setup-format','setup-teams','setup-toss','qbreak','matchend'];
 const TITLES = {
   home:'Hokkie Scorer', settings:'Settings', scoring:'Scoring',
   scorecard:'Scorecard', history:'History', 'setup-format':'New Match',
-  'setup-team1':'Team 1','setup-team2':'Team 2','setup-toss':'Toss',
+  'setup-teams':'Teams','setup-toss':'Toss',
   qbreak:'Quarter Break', matchend:'Match Complete'
 };
 
@@ -468,7 +434,7 @@ function showScr(id) {
 }
 
 function goBack() {
-  const map = {settings:'home','setup-team1':'setup-format','setup-team2':'setup-team1','setup-toss':'setup-team2',scorecard:'home'};
+  const map = {settings:'home','setup-teams':'setup-format','setup-toss':'setup-teams',scorecard:'home'};
   showScr(map[document.querySelector('.scr.on').id.replace('s-','')] || 'home');
 }
 
@@ -511,23 +477,7 @@ function initAbly(key) {
 // ─── setup ────────────────────────────────────────────────────────────────────
 function startNewMatch() {
   document.getElementById('matchDate').value = new Date().toISOString().split('T')[0];
-  mkPlayerFields(1,11); mkPlayerFields(2,11);
-  document.getElementById('t1subs').innerHTML=''; document.getElementById('t2subs').innerHTML='';
   showScr('setup-format');
-}
-function mkPlayerFields(t, n) {
-  const c = document.getElementById('t'+t+'players'); c.innerHTML = '';
-  for (let i=0;i<n;i++) {
-    const d = document.createElement('div'); d.className='fg';
-    d.innerHTML = `<input type="text" class="p${t}" placeholder="Player ${i+1}" style="margin-bottom:4px">`;
-    c.appendChild(d);
-  }
-}
-function addSub(t) {
-  const c = document.getElementById('t'+t+'subs'), n = c.querySelectorAll('input').length+1;
-  const d = document.createElement('div'); d.className='fg';
-  d.innerHTML = `<input type="text" class="sub${t}" placeholder="Substitute ${n}" style="margin-bottom:4px">`;
-  c.appendChild(d);
 }
 function onFmtChange() {
   const v = document.getElementById('matchFormat').value;
@@ -536,15 +486,8 @@ function onFmtChange() {
 function getQuarterMinutes(fmt) {
   return {Standard:15,Short:10,Mini:8}[fmt] ?? (parseInt(document.getElementById('custMinutes').value)||15);
 }
-function getPlayers(t) {
-  const starters = Array.from(document.querySelectorAll('.p'+t)).map((el,i) => ({id:`t${t}p${i}`,name:el.value.trim()||`Player ${i+1}`,starter:true}));
-  const subs = Array.from(document.querySelectorAll('.sub'+t)).map(el=>el.value.trim()).filter(v=>v)
-    .map((name,i) => ({id:`t${t}s${i}`,name,starter:false}));
-  return starters.concat(subs);
-}
 function setupNext(step) {
-  if (step===1) showScr('setup-team1');
-  else if (step===2) showScr('setup-team2');
+  if (step===1) showScr('setup-teams');
   else {
     showScr('setup-toss');
     document.getElementById('tOpt0').textContent = document.getElementById('team1Name').value.trim()||'Team 1';
@@ -559,25 +502,14 @@ function startMatch() {
     id: Date.now()+'', date: document.getElementById('matchDate').value,
     venue: document.getElementById('matchVenue').value.trim(),
     format: fmt, quarterMinutes: getQuarterMinutes(fmt), numQuarters: 4,
-    teams:[{name:document.getElementById('team1Name').value.trim()||'Team 1',players:getPlayers(1)},
-           {name:document.getElementById('team2Name').value.trim()||'Team 2',players:getPlayers(2)}],
+    teams:[{name:document.getElementById('team1Name').value.trim()||'Team 1'},
+           {name:document.getElementById('team2Name').value.trim()||'Team 2'}],
     toss:{winner:tw,choice:te}, quarter:1, events:[], status:'active', result:'', shareId:Date.now().toString(36)
   };
   save(); showScr('scoring'); updateUI(); syncFb();
 }
 
 // ─── derived state (single source of truth = match.events) ────────────────────
-function inMatch(){return match;}
-function onPitch(m, teamIdx) {
-  const t = m.teams[teamIdx];
-  const set = new Set(t.players.filter(p=>p.starter).map(p=>p.id));
-  m.events.filter(e=>e.type==='sub'&&e.team===teamIdx).forEach(e=>{set.delete(e.out);set.add(e.in);});
-  return t.players.filter(p=>set.has(p.id));
-}
-function benchPlayers(m, teamIdx) {
-  const on = new Set(onPitch(m,teamIdx).map(p=>p.id));
-  return m.teams[teamIdx].players.filter(p=>!on.has(p.id));
-}
 function computeScore(m) {
   const s=[0,0];
   m.events.forEach(e=>{
@@ -599,24 +531,12 @@ function strokeStats(m, teamIdx) {
   const evs=m.events.filter(e=>e.type==='stroke'&&e.team===teamIdx);
   return {awarded:evs.length, converted:evs.filter(e=>e.outcome==='goal').length};
 }
-function goalScorers(m, teamIdx) {
-  const map={};
-  m.events.forEach(e=>{
-    if(e.team!==teamIdx)return;
-    const scored = e.type==='goal' || ((e.type==='pc'||e.type==='stroke')&&e.outcome==='goal');
-    if(scored && e.player){ map[e.player]=map[e.player]||{goals:0,assists:0}; map[e.player].goals++; }
-    if(e.type==='goal' && e.assist){ map[e.assist]=map[e.assist]||{goals:0,assists:0}; map[e.assist].assists++; }
-  });
-  return Object.entries(map).map(([id,v])=>({id,name:getPFrom(m,id)?.name||id,...v})).sort((a,b)=>b.goals-a.goals);
-}
-function eventLabel(m, e) {
-  const p=id=>getPFrom(m,id)?.name||id;
+function eventLabel(e) {
   switch(e.type){
-    case 'goal': return '⚽ Goal — '+p(e.player)+(e.assist?' (assist '+p(e.assist)+')':'');
-    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card — '+p(e.player); }
-    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
-    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
-    case 'sub': return '🔄 Sub — '+p(e.in)+' on for '+p(e.out);
+    case 'goal': return '⚽ Goal';
+    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card'; }
+    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal':e.outcome==='saved'?'Saved':'Missed');
+    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored':e.outcome==='saved'?'Saved':'Missed');
   }
   return '';
 }
@@ -628,6 +548,10 @@ function pushEvent(evt) {
   match.events.push(evt);
   save(); updateUI(); syncFb();
 }
+function logGoal(team) {
+  if(!match||match.status!=='active')return;
+  pushEvent({type:'goal', team});
+}
 function undoLast() {
   if(!match||match.status!=='active')return;
   if(!match.events.length)return;
@@ -636,92 +560,49 @@ function undoLast() {
   save(); updateUI(); syncFb();
 }
 
-// ─── action modal (goal / card / pc / stroke / sub) ────────────────────────────
-function openAction(type, color, presetTeam) {
-  pendingAction = {type, color, team: presetTeam===undefined?null:presetTeam};
+// ─── action modal (card / pc / stroke) ─────────────────────────────────────────
+function openAction(type, color) {
+  pendingAction = {type, color, team: null};
+  if (type==='pc'||type==='stroke') pendingAction.outcome = undefined;
   renderActionModal();
   openM('mAction');
 }
 function actionTitle(a) {
-  if(a.type==='goal') return 'Goal';
   if(a.type==='card') return a.color[0].toUpperCase()+a.color.slice(1)+' Card';
   if(a.type==='pc') return 'Penalty Corner';
   if(a.type==='stroke') return 'Penalty Stroke';
-  if(a.type==='sub') return 'Substitution';
 }
-function setActionTeam(i) { pendingAction.team=i; renderActionModal(); }
+function setActionTeam(i) {
+  pendingAction.team = i;
+  if (pendingAction.type==='card') { confirmAction(); return; }
+  renderActionModal();
+}
 function setActionOutcome(o) {
-  pendingAction.outcome=o;
-  if(o!=='goal') confirmAction();
-  else renderActionModal();
+  pendingAction.outcome = o;
+  confirmAction();
 }
 function renderActionModal() {
-  const a=pendingAction, m=match;
-  let title = actionTitle(a) + (a.team!==null?' — '+m.teams[a.team].name:'');
-  document.getElementById('mActionTitle').textContent = title;
+  const a = pendingAction, m = match;
+  document.getElementById('mActionTitle').textContent = actionTitle(a) + (a.team!==null?' — '+m.teams[a.team].name:'');
   const body = document.getElementById('mActionBody');
   if (a.team===null) {
     body.innerHTML = `<div class="dis-grid">
       <button class="dbtn" onclick="setActionTeam(0)">${m.teams[0].name}</button>
       <button class="dbtn" onclick="setActionTeam(1)">${m.teams[1].name}</button>
     </div>`;
-    return;
-  }
-  const players = onPitch(m, a.team);
-  const playerOpts = players.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  if (a.type==='goal') {
-    body.innerHTML = `
-      <div class="fg"><label>Scorer</label><select id="actScorer"><option value="">-- Select --</option>${playerOpts}</select></div>
-      <div class="fg"><label>Assist (optional)</label><select id="actAssist"><option value="">No assist</option>${playerOpts}</select></div>
-      <button class="btn btn-primary" onclick="confirmAction()">Confirm Goal</button>`;
-  } else if (a.type==='card') {
-    body.innerHTML = `
-      <div class="fg"><label>Player</label><select id="actPlayer"><option value="">-- Select --</option>${playerOpts}</select></div>
-      <button class="btn btn-primary" onclick="confirmAction()">Confirm Card</button>`;
   } else if (a.type==='pc'||a.type==='stroke') {
-    if (a.outcome===undefined) {
-      body.innerHTML = `<div class="dis-grid">
-        <button class="dbtn" onclick="setActionOutcome('goal')">Goal</button>
-        <button class="dbtn" onclick="setActionOutcome('saved')">Saved</button>
-        <button class="dbtn" onclick="setActionOutcome('miss')">Missed</button>
-      </div>`;
-    } else if (a.outcome==='goal') {
-      body.innerHTML = `
-        <div class="fg"><label>Scorer</label><select id="actScorer"><option value="">-- Select --</option>${playerOpts}</select></div>
-        <button class="btn btn-primary" onclick="confirmAction()">Confirm</button>`;
-    }
-  } else if (a.type==='sub') {
-    const bench = benchPlayers(m, a.team);
-    if (!bench.length) { body.innerHTML = `<p style="color:var(--muted);font-size:14px">No substitutes available for this team.</p>`; return; }
-    const benchOpts = bench.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-    body.innerHTML = `
-      <div class="fg"><label>Player Out</label><select id="actOut"><option value="">-- Select --</option>${playerOpts}</select></div>
-      <div class="fg"><label>Player In</label><select id="actIn"><option value="">-- Select --</option>${benchOpts}</select></div>
-      <button class="btn btn-primary" onclick="confirmAction()">Confirm Substitution</button>`;
+    body.innerHTML = `<div class="dis-grid">
+      <button class="dbtn" onclick="setActionOutcome('goal')">Goal</button>
+      <button class="dbtn" onclick="setActionOutcome('saved')">Saved</button>
+      <button class="dbtn" onclick="setActionOutcome('miss')">Missed</button>
+    </div>`;
   }
 }
 function confirmAction() {
   const a = pendingAction;
   const evt = {type:a.type, team:a.team};
-  if (a.type==='goal') {
-    evt.player = document.getElementById('actScorer').value;
-    evt.assist = document.getElementById('actAssist').value || null;
-    if(!evt.player){alert('Select a scorer.');return;}
-  } else if (a.type==='card') {
-    evt.player = document.getElementById('actPlayer').value;
-    evt.color = a.color;
-    if(!evt.player){alert('Select a player.');return;}
-  } else if (a.type==='pc'||a.type==='stroke') {
-    evt.outcome = a.outcome;
-    if (a.outcome==='goal') {
-      evt.player = document.getElementById('actScorer').value;
-      if(!evt.player){alert('Select a scorer.');return;}
-    }
-  } else if (a.type==='sub') {
-    evt.out = document.getElementById('actOut').value;
-    evt.in = document.getElementById('actIn').value;
-    if(!evt.out||!evt.in){alert('Select both players.');return;}
-  }
+  if (a.type==='card') evt.color = a.color;
+  else if (a.type==='pc'||a.type==='stroke') evt.outcome = a.outcome;
   pushEvent(evt);
   closeM('mAction');
   pendingAction = null;
@@ -767,18 +648,16 @@ function updateUI() {
   document.getElementById('qNum').textContent = match.quarter;
 
   const parts = [0,1].map(ti=>{
-    const on=onPitch(match,ti).length, bench=benchPlayers(match,ti).length;
-    const c=cardsTally(match,ti);
-    return `<b>${match.teams[ti].name}</b>: ${on} on pitch · ${bench} on bench · 🟩${c.green} 🟨${c.yellow} 🔴${c.red}`;
+    const c=cardsTally(match,ti), pc=pcStats(match,ti), st=strokeStats(match,ti);
+    return `<b>${match.teams[ti].name}</b>: 🟩${c.green} 🟨${c.yellow} 🔴${c.red} · PC ${pc.converted}/${pc.awarded} · PS ${st.converted}/${st.awarded}`;
   });
-  document.getElementById('pitchSummary').innerHTML = parts.join('<br>');
+  document.getElementById('statsSummary').innerHTML = parts.join('<br>');
 
   document.getElementById('pipRow').innerHTML = match.events.slice(-12).map(e=>{
     let cls='p-goal',lbl='⚽';
     if(e.type==='card'){cls='p-'+e.color;lbl=e.color[0].toUpperCase();}
     else if(e.type==='pc'){cls='p-pc';lbl='PC';}
     else if(e.type==='stroke'){cls='p-stroke';lbl='PS';}
-    else if(e.type==='sub'){cls='p-sub';lbl='🔄';}
     return `<div class="pip ${cls}">${lbl}</div>`;
   }).join('');
 }
@@ -788,7 +667,7 @@ function renderCard(m) {
   m = m||match;
   if(!m){ document.getElementById('cardContent').innerHTML='<p style="color:var(--muted);padding:20px">No match data.</p>'; return; }
   window._cm = m;
-  document.getElementById('cardTabs').innerHTML = ['Summary','Match Log','Cards'].map((t,i)=>`<button class="itab${i===0?' on':''}" onclick="switchSCTab(${i})">${t}</button>`).join('');
+  document.getElementById('cardTabs').innerHTML = ['Summary','Match Log'].map((t,i)=>`<button class="itab${i===0?' on':''}" onclick="switchSCTab(${i})">${t}</button>`).join('');
   switchSCTab(0);
 }
 function switchSCTab(idx) {
@@ -796,8 +675,7 @@ function switchSCTab(idx) {
   const m = window._cm||match; if(!m)return;
   const c = document.getElementById('cardContent');
   if(idx===0) c.innerHTML = renderSummary(m);
-  else if(idx===1) c.innerHTML = renderLog(m);
-  else c.innerHTML = renderCardsTab(m);
+  else c.innerHTML = renderLog(m);
 }
 function renderSummary(m) {
   const s = computeScore(m);
@@ -810,10 +688,10 @@ function renderSummary(m) {
     ${m.result?`<div style="margin-top:10px;color:var(--accent);font-weight:700">${m.result}</div>`:''}
   </div>`;
   [0,1].forEach(ti=>{
-    const t=m.teams[ti], scorers=goalScorers(m,ti), cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
+    const t=m.teams[ti], cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
     h += `<div class="card"><div class="card-label">${t.name}</div>
-      ${scorers.length?`<table class="sc-table"><thead><tr><th>Scorer</th><th class="tr">Goals</th><th class="tr">Assists</th></tr></thead><tbody>${scorers.map(sc=>`<tr><td>${sc.name}</td><td class="tr bold">${sc.goals}</td><td class="tr">${sc.assists}</td></tr>`).join('')}</tbody></table>`:'<div style="font-size:13px;color:var(--muted)">No goals yet</div>'}
-      <div style="margin-top:10px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
+      <div style="font-size:13px;color:var(--t2)">Goals: <b style="color:var(--accent)">${s[ti]}</b></div>
+      <div style="margin-top:8px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
       <div style="margin-top:4px;font-size:12px;color:var(--t2)">Penalty Corners: ${pc.converted}/${pc.awarded} converted · Penalty Strokes: ${st.converted}/${st.awarded} converted</div>
     </div>`;
   });
@@ -823,18 +701,7 @@ function renderLog(m) {
   if(!m.events.length) return '<div class="card" style="padding:20px;color:var(--muted)">No events logged.</div>';
   let h = '<div class="card" style="overflow-x:auto"><table class="sc-table"><thead><tr><th>Q</th><th>Team</th><th>Event</th></tr></thead><tbody>';
   m.events.forEach(e=>{
-    h += `<tr><td>${e.quarter}</td><td>${m.teams[e.team]?.name||''}</td><td>${eventLabel(m,e)}</td></tr>`;
-  });
-  h += '</tbody></table></div>';
-  return h;
-}
-function renderCardsTab(m) {
-  const cardEvs = m.events.filter(e=>e.type==='card');
-  if(!cardEvs.length) return '<div class="card" style="padding:20px;color:var(--muted)">No cards issued.</div>';
-  let h = '<div class="card" style="overflow-x:auto"><table class="sc-table"><thead><tr><th>Q</th><th>Team</th><th>Player</th><th>Card</th></tr></thead><tbody>';
-  cardEvs.forEach(e=>{
-    const p=getPFrom(m,e.player), icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color];
-    h += `<tr><td>${e.quarter}</td><td>${m.teams[e.team]?.name||''}</td><td>${p?.name||e.player}</td><td>${icon} ${e.color}</td></tr>`;
+    h += `<tr><td>${e.quarter}</td><td>${m.teams[e.team]?.name||''}</td><td>${eventLabel(e)}</td></tr>`;
   });
   h += '</tbody></table></div>';
   return h;
@@ -888,13 +755,13 @@ function buildEmail(m) {
   let t = `HOKKIE SCORECARD\n${m.teams[0].name} vs ${m.teams[1].name}\nDate: ${m.date}  Venue: ${m.venue}  Format: ${m.format}\nResult: ${m.result||'In progress'}\n\nFINAL SCORE: ${m.teams[0].name} ${s[0]} - ${s[1]} ${m.teams[1].name}\n\n`;
   [0,1].forEach(ti=>{
     t += `${'='.repeat(48)}\n${m.teams[ti].name.toUpperCase()}\n${'='.repeat(48)}\n`;
-    goalScorers(m,ti).forEach(sc=>{ t += `  ${sc.name.padEnd(20)} Goals:${sc.goals}  Assists:${sc.assists}\n`; });
+    t += `  Goals: ${s[ti]}\n`;
     const c = cardsTally(m,ti); t += `  Cards: Green ${c.green}  Yellow ${c.yellow}  Red ${c.red}\n`;
     const pc = pcStats(m,ti), st = strokeStats(m,ti);
     t += `  Penalty Corners: ${pc.converted}/${pc.awarded} converted   Penalty Strokes: ${st.converted}/${st.awarded} converted\n\n`;
   });
   t += 'MATCH LOG\n';
-  m.events.forEach(e=>{ t += `  Q${e.quarter}  ${m.teams[e.team]?.name||''}  ${eventLabel(m,e)}\n`; });
+  m.events.forEach(e=>{ t += `  Q${e.quarter}  ${m.teams[e.team]?.name||''}  ${eventLabel(e)}\n`; });
   return t;
 }
 function downloadCSV() {
@@ -902,14 +769,13 @@ function downloadCSV() {
   const s = computeScore(m);
   let csv = `MATCH INFO\nTeams,${m.teams[0].name} vs ${m.teams[1].name}\nDate,${m.date}\nVenue,${m.venue}\nFormat,${m.format}\nResult,${m.result||''}\nFinal Score,"${m.teams[0].name} ${s[0]} - ${s[1]} ${m.teams[1].name}"\n\n`;
   [0,1].forEach(ti=>{
-    csv += `${m.teams[ti].name.toUpperCase()}\nScorer,Goals,Assists\n`;
-    goalScorers(m,ti).forEach(sc=>{ csv += `"${sc.name}",${sc.goals},${sc.assists}\n`; });
-    const c = cardsTally(m,ti); csv += `\nCards,Green,Yellow,Red\n,${c.green},${c.yellow},${c.red}\n`;
+    csv += `${m.teams[ti].name.toUpperCase()}\nGoals,${s[ti]}\n`;
+    const c = cardsTally(m,ti); csv += `Cards,Green,Yellow,Red\n,${c.green},${c.yellow},${c.red}\n`;
     const pc = pcStats(m,ti), st = strokeStats(m,ti);
     csv += `\nPenalty Corners,Awarded,${pc.awarded},Converted,${pc.converted}\nPenalty Strokes,Awarded,${st.awarded},Converted,${st.converted}\n\n`;
   });
   csv += `MATCH LOG\nQuarter,Team,Event\n`;
-  m.events.forEach(e=>{ csv += `${e.quarter},"${m.teams[e.team]?.name||''}","${eventLabel(m,e).replace(/[⚽🟩🟨🔴🔄]/g,'').trim()}"\n`; });
+  m.events.forEach(e=>{ csv += `${e.quarter},"${m.teams[e.team]?.name||''}","${eventLabel(e).replace(/[⚽🟩🟨🔴]/g,'').trim()}"\n`; });
   const blob = new Blob([csv],{type:'text/csv'});
   const url = URL.createObjectURL(blob), a = document.createElement('a');
   a.href = url; a.download = `${m.teams[0].name.replace(/\s/g,'_')}_vs_${m.teams[1].name.replace(/\s/g,'_')}_${m.date||'match'}.csv`;
@@ -928,7 +794,7 @@ function syncFb() {
     const ch = ablyClient.channels.get('fairland-hokkie-'+(match.shareId||match.id));
     ch.publish('score', {
       id:match.id, shareId:match.shareId,
-      teams:match.teams.map(t=>({name:t.name,players:t.players})),
+      teams:match.teams.map(t=>({name:t.name})),
       date:match.date, venue:match.venue, format:match.format,
       quarterMinutes:match.quarterMinutes, numQuarters:match.numQuarters, quarter:match.quarter,
       status:match.status, result:match.result, updatedAt:Date.now(),
@@ -936,10 +802,6 @@ function syncFb() {
     });
   } catch(e) { console.warn('Ably:', e.message); }
 }
-
-// ─── helpers ──────────────────────────────────────────────────────────────────
-function getP(id) { return getPFrom(match,id); }
-function getPFrom(m,id) { for(const t of(m?.teams||[])){ const p=t.players.find(p=>p.id===id); if(p)return p; } return null; }
 
 // ─── splash ───────────────────────────────────────────────────────────────────
 (function(){

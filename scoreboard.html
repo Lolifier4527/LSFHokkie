@@ -132,8 +132,6 @@ const params=new URLSearchParams(window.location.search);
 const matchId=params.get('match');
 
 function getSetting(k){return JSON.parse(localStorage.getItem('cs_settings')||'{}')[k]||'';}
-function getP(teams,id){for(const t of(teams||[])){const p=(t.players||[]).find(p=>p.id===id);if(p)return p;}return null;}
-function pName(teams,id){return getP(teams,id)?.name||id;}
 
 function computeScore(m){
   const s=[0,0];
@@ -156,24 +154,12 @@ function strokeStats(m,teamIdx){
   const evs=(m.events||[]).filter(e=>e.type==='stroke'&&e.team===teamIdx);
   return {awarded:evs.length,converted:evs.filter(e=>e.outcome==='goal').length};
 }
-function goalScorers(m,teamIdx){
-  const map={};
-  (m.events||[]).forEach(e=>{
-    if(e.team!==teamIdx)return;
-    const scored=e.type==='goal'||((e.type==='pc'||e.type==='stroke')&&e.outcome==='goal');
-    if(scored&&e.player){map[e.player]=map[e.player]||{goals:0,assists:0};map[e.player].goals++;}
-    if(e.type==='goal'&&e.assist){map[e.assist]=map[e.assist]||{goals:0,assists:0};map[e.assist].assists++;}
-  });
-  return Object.entries(map).map(([id,v])=>({id,name:pName(m.teams,id),...v})).sort((a,b)=>b.goals-a.goals);
-}
-function eventLabel(m,e){
-  const p=id=>pName(m.teams,id);
+function eventLabel(e){
   switch(e.type){
-    case 'goal': return '⚽ Goal — '+p(e.player)+(e.assist?' (assist '+p(e.assist)+')':'');
-    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card — '+p(e.player); }
-    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
-    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored ('+p(e.player)+')':e.outcome==='saved'?'Saved':'Missed');
-    case 'sub': return '🔄 Sub — '+p(e.in)+' on for '+p(e.out);
+    case 'goal': return '⚽ Goal';
+    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card'; }
+    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal':e.outcome==='saved'?'Saved':'Missed');
+    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored':e.outcome==='saved'?'Saved':'Missed');
   }
   return '';
 }
@@ -215,10 +201,10 @@ function renderMatch(data){
 
   // Per-team stats
   [0,1].forEach(ti=>{
-    const t=teams[ti]||{}, scorers=goalScorers(m,ti), cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
+    const t=teams[ti]||{}, cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
     html+=`<div class="card"><div class="card-label">${t.name||('Team '+(ti+1))}</div>
-      ${scorers.length?`<table class="sc-table"><thead><tr><th>Scorer</th><th class="tr">Goals</th><th class="tr">Assists</th></tr></thead><tbody>${scorers.map(sc=>`<tr><td>${sc.name}</td><td class="tr bold">${sc.goals}</td><td class="tr">${sc.assists}</td></tr>`).join('')}</tbody></table>`:'<div style="font-size:13px;color:var(--muted)">No goals yet</div>'}
-      <div style="margin-top:10px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
+      <div style="font-size:13px;color:var(--t2)">Goals: <b style="color:var(--accent)">${s[ti]}</b></div>
+      <div style="margin-top:8px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
       <div style="margin-top:4px;font-size:12px;color:var(--t2)">Penalty Corners: ${pc.converted}/${pc.awarded} converted · Penalty Strokes: ${st.converted}/${st.awarded} converted</div>
     </div>`;
   });
@@ -228,7 +214,7 @@ function renderMatch(data){
     html+=`<div class="card" style="overflow-x:auto"><div class="card-label">Match Log</div>
       <table class="sc-table"><thead><tr><th>Q</th><th>Team</th><th>Event</th></tr></thead><tbody>`;
     m.events.forEach(e=>{
-      html+=`<tr><td>${e.quarter}</td><td>${teams[e.team]?.name||''}</td><td>${eventLabel(m,e)}</td></tr>`;
+      html+=`<tr><td>${e.quarter}</td><td>${teams[e.team]?.name||''}</td><td>${eventLabel(e)}</td></tr>`;
     });
     html+=`</tbody></table></div>`;
   }
