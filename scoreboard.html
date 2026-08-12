@@ -57,26 +57,11 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
 .score-big{font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .score-sub{font-size:13px;color:var(--t3);margin-top:6px}
 
-/* chips */
-.meta-chip{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--glass-b);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--t2)}
-.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-
-/* result banner */
-.result-banner{background:linear-gradient(145deg,rgba(56,189,248,.1),rgba(56,189,248,.04));border:1px solid rgba(234,179,8,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
-
-/* table */
-.sc-table{width:100%;border-collapse:collapse;font-size:12px}
-.sc-table th{background:rgba(255,255,255,.04);color:var(--t3);padding:7px 5px;text-align:left;font-weight:600}
-.sc-table td{padding:7px 5px;border-bottom:1px solid rgba(255,255,255,.04)}
-.sc-table .tr{text-align:right}
-.sc-table .bold{font-weight:700;color:var(--accent)}
-
 /* empty / loading */
 .empty{text-align:center;padding:60px 20px;color:var(--t3)}
 .empty-icon{font-size:40px;margin-bottom:14px}
 .empty h2{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:6px}
 .empty p{font-size:13px;line-height:1.5}
-.updated{font-size:11px;color:var(--muted);text-align:right;margin-top:8px}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css">
 </head>
@@ -160,53 +145,17 @@ function computeScore(m){
   });
   return s;
 }
-function cardsTally(m,teamIdx){
-  const c={green:0,yellow:0,red:0};
-  (m.events||[]).filter(e=>e.type==='card'&&e.team===teamIdx).forEach(e=>c[e.color]++);
-  return c;
-}
-function pcStats(m,teamIdx){
-  const evs=(m.events||[]).filter(e=>e.type==='pc'&&e.team===teamIdx);
-  return {awarded:evs.length,converted:evs.filter(e=>e.outcome==='goal').length};
-}
-function strokeStats(m,teamIdx){
-  const evs=(m.events||[]).filter(e=>e.type==='stroke'&&e.team===teamIdx);
-  return {awarded:evs.length,converted:evs.filter(e=>e.outcome==='goal').length};
-}
-function eventLabel(e){
-  switch(e.type){
-    case 'goal': return '⚽ Goal';
-    case 'card': { const icon={green:'🟩',yellow:'🟨',red:'🔴'}[e.color]; return icon+' '+e.color[0].toUpperCase()+e.color.slice(1)+' card'; }
-    case 'pc': return 'Penalty Corner — '+(e.outcome==='goal'?'Goal':e.outcome==='saved'?'Saved':'Missed');
-    case 'stroke': return 'Penalty Stroke — '+(e.outcome==='goal'?'Scored':e.outcome==='saved'?'Saved':'Missed');
-  }
-  return '';
-}
-
 function renderMatch(data){
   if(!data){
     document.getElementById('root').innerHTML=`<div class="empty"><div class="empty-icon">🏑</div><h2>Match not found</h2><p>The match may not have started yet, or the Ably key isn't configured.<br>Ask the scorer to share an updated link.</p></div>`;
     return;
   }
   const m=data, teams=m.teams||[];
-  let html='';
-
-  // Result banner
-  if(m.status==='complete'&&m.result){
-    html+=`<div class="result-banner"><span style="font-size:26px">🏆</span><div><div class="card-label">Result</div><div style="font-weight:700;font-size:15px;color:var(--accent)">${m.result}</div></div></div>`;
-  }
-
-  // Match meta
-  const chips=[];
-  if(m.date)chips.push(`<span class="meta-chip"><i class="ti ti-calendar"></i>${m.date}</span>`);
-  if(m.venue)chips.push(`<span class="meta-chip"><i class="ti ti-map-pin"></i>${m.venue}</span>`);
-  if(m.format)chips.push(`<span class="meta-chip">${m.format}</span>`);
-  if(chips.length)html+=`<div class="meta-row">${chips.join('')}</div>`;
-
   const s=computeScore(m);
 
-  // Hero score
-  html+=`<div class="card">
+  // Hero score only — everything else (meta chips, result banner, per-team
+  // stats, match log) intentionally omitted for a clean, glanceable scoreboard.
+  const html=`<div class="card">
     <div class="card-label">${(teams[0]||{}).name||'Team 1'} vs ${(teams[1]||{}).name||'Team 2'}</div>
     <div style="display:flex;justify-content:space-around;align-items:center">
       <div style="text-align:center"><div class="score-big">${s[0]}</div><div class="score-sub">${(teams[0]||{}).name||''}</div></div>
@@ -218,29 +167,6 @@ function renderMatch(data){
       <div style="text-align:center"><div class="score-big">${s[1]}</div><div class="score-sub">${(teams[1]||{}).name||''}</div></div>
     </div>
   </div>`;
-
-  // Per-team stats
-  [0,1].forEach(ti=>{
-    const t=teams[ti]||{}, cards=cardsTally(m,ti), pc=pcStats(m,ti), st=strokeStats(m,ti);
-    html+=`<div class="card"><div class="card-label">${t.name||('Team '+(ti+1))}</div>
-      <div style="font-size:13px;color:var(--t2)">Goals: <b style="color:var(--accent)">${s[ti]}</b></div>
-      <div style="margin-top:8px;font-size:12px;color:var(--t2)">Cards: 🟩 ${cards.green} · 🟨 ${cards.yellow} · 🔴 ${cards.red}</div>
-      <div style="margin-top:4px;font-size:12px;color:var(--t2)">Penalty Corners: ${pc.converted}/${pc.awarded} converted · Penalty Strokes: ${st.converted}/${st.awarded} converted</div>
-    </div>`;
-  });
-
-  // Match log
-  if((m.events||[]).length){
-    html+=`<div class="card" style="overflow-x:auto"><div class="card-label">Match Log</div>
-      <table class="sc-table"><thead><tr><th>Q</th><th>Team</th><th>Event</th></tr></thead><tbody>`;
-    m.events.forEach(e=>{
-      html+=`<tr><td>${e.quarter}</td><td>${teams[e.team]?.name||''}</td><td>${eventLabel(e)}</td></tr>`;
-    });
-    html+=`</tbody></table></div>`;
-  }
-
-  const upd=m.updatedAt?new Date(m.updatedAt).toLocaleTimeString():'';
-  if(upd)html+=`<div class="updated">Last updated ${upd}</div>`;
 
   document.getElementById('root').innerHTML=html;
   window._sbMatch=m;
