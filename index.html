@@ -410,6 +410,16 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
   </div>
 </div>
 
+<!-- MODAL: WELCOME BACK (shown when returning after being away mid-match) -->
+<div class="modal-bg" id="mAway" style="display:none">
+  <div class="modal">
+    <h2>Welcome Back</h2>
+    <p id="mAwayBody" style="color:var(--t2);font-size:14px;margin-bottom:18px;line-height:1.5"></p>
+    <button class="btn btn-primary" onclick="closeM('mAway')">&#9654; Resume Scoring</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="endAwaySession()">End Session &mdash; Back to Home</button>
+  </div>
+</div>
+
 <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
 <script>
 // ─── state ────────────────────────────────────────────────────────────────────
@@ -620,6 +630,39 @@ setInterval(tickTimer, 500);
 // otherwise get published. Viewers use the gap since the last message to detect
 // a dropped connection, so republish periodically even when nothing changed.
 setInterval(() => { if (match && match.status === 'active') syncFb(); }, 20000);
+
+// ─── away/return detection ─────────────────────────────────────────────────────
+// Browsers give no way to intercept the moment a tab is backgrounded (phone
+// locks, app-switch, etc.) with a custom prompt — only a native, non-customizable
+// dialog on an actual tab close. So instead: detect it on return. If the page was
+// hidden for a while during an active match, ask whether to resume or step away
+// for good (which just parks the match — status stays 'active', resumable from
+// History — rather than force-ending it).
+const AWAY_THRESHOLD_MS = 60000;
+let awayHiddenAt = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    awayHiddenAt = Date.now();
+  } else if (document.visibilityState === 'visible') {
+    if (awayHiddenAt && match && match.status === 'active' && (Date.now()-awayHiddenAt) > AWAY_THRESHOLD_MS) {
+      showAwayPrompt(Date.now()-awayHiddenAt);
+    }
+    awayHiddenAt = null;
+  }
+});
+function showAwayPrompt(awayMs) {
+  const mins = Math.floor(awayMs/60000), secs = Math.floor((awayMs%60000)/1000);
+  const away = mins>0 ? `${mins}m ${secs}s` : `${secs}s`;
+  document.getElementById('mAwayBody').textContent =
+    `You stepped away for ${away} — ${match.teams[0].name} vs ${match.teams[1].name}, Quarter ${match.quarter} is still active. Resume scoring, or end this session?`;
+  openM('mAway');
+}
+function endAwaySession() {
+  pauseTimer();
+  save(); syncFb();
+  closeM('mAway');
+  showScr('home');
+}
 
 // ─── derived state (single source of truth = match.events) ────────────────────
 function computeScore(m) {
