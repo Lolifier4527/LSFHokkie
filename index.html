@@ -541,6 +541,12 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 // ─── state ────────────────────────────────────────────────────────────────────
 let match = null, pendingExtra = null, pendingDis = null, ablyClient = null;
 
+// Auto-publish key so any device can start scoring without configuring Settings first.
+// Use an Ably key scoped to Publish+Subscribe on the "fairland-cricket-*" channel namespace
+// only (not the root/admin key) — this repo is public, so a leaked key should only be able
+// to touch this app's match channels, nothing else on the Ably account. Paste it below.
+const SCORER_ABLY_KEY = "RrGsHw.HeEZfQ:VkGU6AxObB5AF2KEiu8KHLvln1DN7qHg0PnpOoVw0RU";
+
 // ─── nav ──────────────────────────────────────────────────────────────────────
 const SETUP_SCREENS = ['setup-format','setup-team1','setup-team2','setup-toss','opening','innbreak','matchend'];
 const TITLES = {
@@ -586,13 +592,13 @@ function loadSettings() {
   ['coachEmail','coachName','ablyKey'].forEach(k => {
     const el = document.getElementById(k); if (el && s[k]) el.value = s[k];
   });
-  if (s.ablyKey) initAbly(s.ablyKey);
+  initAbly(s.ablyKey || SCORER_ABLY_KEY);
 }
 function saveSettings() {
   const keys = ['coachEmail','coachName','ablyKey'];
   const s = Object.fromEntries(keys.map(k => [k, document.getElementById(k).value.trim()]));
   localStorage.setItem('cs_settings', JSON.stringify(s));
-  if (s.ablyKey) initAbly(s.ablyKey);
+  initAbly(s.ablyKey || SCORER_ABLY_KEY);
   const el = document.getElementById('settingSaved');
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2000);
