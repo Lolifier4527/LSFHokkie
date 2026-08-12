@@ -84,7 +84,7 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
         <img src="logo.png" height="36" alt="Laerskool Fairland">
         <div class="hdr-school">
           <div class="hdr-school-name">Fairland</div>
-          <div class="hdr-school-sub">Laerskool · Primary School</div>
+          <div class="hdr-school-sub" id="fieldBadge">Laerskool · Primary School</div>
         </div>
       </div>
     </div>
@@ -115,6 +115,13 @@ main{max-width:640px;margin:0 auto;padding:14px 14px 40px}
 
 const params=new URLSearchParams(window.location.search);
 const matchId=params.get('match');
+
+// Same field-locking as the scorer app: ?field=1/2 in the URL, remembered in
+// localStorage so this device/tab stays on its field even without the param.
+const _fieldParam=params.get('field');
+if(_fieldParam) localStorage.setItem('cs_field',_fieldParam);
+const FIELD=_fieldParam||localStorage.getItem('cs_field')||'1';
+document.getElementById('fieldBadge').textContent='Field '+FIELD;
 
 function getSetting(k){return JSON.parse(localStorage.getItem('cs_settings')||'{}')[k]||'';}
 
@@ -179,10 +186,11 @@ function renderMatch(data){
 // you want tighter scoping.
 const PUBLIC_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJibM";
 
-// No ?match= param -> follow the constant "live" channel, which always mirrors
-// whichever match the scorer currently has open. A ?match=<id> param still
-// pins this page to one specific match's own channel, for old shared links.
-const LIVE_CHANNEL = 'fairland-hokkie-live';
+// No ?match= param -> follow the constant "live" channel for this field, which
+// always mirrors whichever match that field's scorer currently has open. A
+// ?match=<id> param still pins this page to one specific match's own channel,
+// for old shared links.
+const LIVE_CHANNEL = 'fairland-hokkie-live-' + FIELD;
 const channelName = matchId ? 'fairland-hokkie-'+matchId : LIVE_CHANNEL;
 
 // Mobile browsers suspend the realtime connection when the tab/screen is

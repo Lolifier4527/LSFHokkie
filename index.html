@@ -195,7 +195,10 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
 
 <header class="hdr">
   <button class="hdr-btn" id="backBtn" onclick="goBack()" style="display:none">&#8592;</button>
-  <span class="hdr-title" id="hdrTitle">Hokkie Scorer</span>
+  <span>
+    <span class="hdr-title" id="hdrTitle">Hokkie Scorer</span>
+    <span id="fieldBadge" style="font-size:11px;color:var(--muted);margin-left:6px;vertical-align:middle"></span>
+  </span>
   <button class="hdr-btn" onclick="showScr('settings')">&#9881;</button>
 </header>
 
@@ -409,6 +412,14 @@ let match = null, ablyClient = null, pendingAction = null;
 // "fairland-hokkie-*" channel namespace (Settings screen explains how) and paste it
 // there.
 const SCORER_ABLY_KEY = "47Va8A.fs-Sfw:8u-0YsizhEjbsd86eFqEANOVENkLAHPk7Z2Kh9cJibM";
+
+// Which field this device scores for — keeps two simultaneous matches from
+// colliding on the same "live" channel. Read from ?field=1/2 in the URL; once
+// seen, it's remembered in localStorage so the device stays locked to that field
+// even if later opened from a bookmark without the param. Defaults to "1".
+const _fieldParam = new URLSearchParams(location.search).get('field');
+if (_fieldParam) localStorage.setItem('cs_field', _fieldParam);
+const FIELD = _fieldParam || localStorage.getItem('cs_field') || '1';
 
 // ─── nav ──────────────────────────────────────────────────────────────────────
 const SETUP_SCREENS = ['setup-format','setup-teams','setup-toss','qbreak','matchend'];
@@ -828,18 +839,23 @@ function downloadCSV() {
   a.click(); URL.revokeObjectURL(url);
 }
 function copyLink() {
-  // Constant link — always shows whichever match is currently active, so it only
-  // needs to be shared once and keeps working for every future match too.
-  const link = window.location.href.replace('index.html','')+'scoreboard.html';
+  // Constant link, scoped to this device's field — always shows whichever match
+  // is currently active on this field, so it only needs to be shared once and
+  // keeps working for every future match on that field too. Strip the filename
+  // (not a literal "index.html" replace) so this still works if the browser
+  // normalizes the URL to just the folder.
+  const dir = window.location.pathname.replace(/[^/]*$/, '');
+  const link = window.location.origin + dir + 'scoreboard.html?field=' + FIELD;
   navigator.clipboard.writeText(link).then(()=>alert('Link copied!\n\n'+link)).catch(()=>prompt('Copy link:',link));
 }
 
 // ─── ably sync ────────────────────────────────────────────────────────────────
 // The "live" channel always mirrors whichever match is currently active on this
 // device, so a single scoreboard link keeps working match after match without
-// being re-shared. Each match also still gets its own fairland-hokkie-<shareId>
-// channel, for anyone holding an old direct link to a specific match.
-const LIVE_CHANNEL = 'fairland-hokkie-live';
+// being re-shared. It's scoped per field so two fields scoring at once don't
+// collide. Each match also still gets its own fairland-hokkie-<shareId> channel,
+// for anyone holding an old direct link to a specific match.
+const LIVE_CHANNEL = 'fairland-hokkie-live-' + FIELD;
 function syncFb() {
   if(!ablyClient||!match)return;
   try {
@@ -863,6 +879,7 @@ function syncFb() {
 })();
 
 // ─── init ─────────────────────────────────────────────────────────────────────
+document.getElementById('fieldBadge').textContent = 'Field ' + FIELD;
 loadSettings();
 renderHome();
 const _saved = JSON.parse(localStorage.getItem('cs_h')||'[]').find(m=>m.status==='active');
