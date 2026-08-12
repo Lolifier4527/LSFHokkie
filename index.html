@@ -295,6 +295,8 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:-apple-sy
       <div style="text-align:center;padding:0 10px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase">Quarter</div>
         <div id="qNum" style="font-size:24px;font-weight:900;color:var(--accent)">1</div>
+        <div id="qClock" style="font-size:15px;font-weight:800;margin-top:2px">15:00</div>
+        <button class="btn btn-ghost" id="timerBtn" style="margin-top:4px;padding:5px 10px;font-size:11px" onclick="toggleTimer()">&#9208; Pause</button>
       </div>
       <div style="text-align:center;flex:1">
         <div id="scoreB" class="score-num">0</div>
@@ -471,6 +473,10 @@ function initAbly(key) {
   try {
     if (ablyClient) { ablyClient.close(); ablyClient = null; }
     ablyClient = new Ably.Realtime({ key, closeOnUnload: true });
+    // Republish immediately once connected, so an active match becomes visible to new
+    // viewers right away instead of waiting for the next scoring action (also covers
+    // the case where the key was just added/changed and nothing has synced yet).
+    ablyClient.connection.once('connected', () => { if (match) syncFb(); });
   } catch(e) { console.warn('Ably:', e.message); }
 }
 
@@ -504,10 +510,41 @@ function startMatch() {
     format: fmt, quarterMinutes: getQuarterMinutes(fmt), numQuarters: 4,
     teams:[{name:document.getElementById('team1Name').value.trim()||'Team 1'},
            {name:document.getElementById('team2Name').value.trim()||'Team 2'}],
-    toss:{winner:tw,choice:te}, quarter:1, events:[], status:'active', result:'', shareId:Date.now().toString(36)
+    toss:{winner:tw,choice:te}, quarter:1, events:[], status:'active', result:'', shareId:Date.now().toString(36),
+    timer:{startedAt:Date.now(), accumMs:0}
   };
   save(); showScr('scoring'); updateUI(); syncFb();
 }
+
+// ─── quarter timer ──────────────────────────────────────────────────────────
+function remainingMs(m) {
+  m = m||match;
+  if(!m||!m.timer) return null;
+  const total = (m.quarterMinutes||15)*60000;
+  const elapsed = m.timer.accumMs + (m.timer.startedAt ? Date.now()-m.timer.startedAt : 0);
+  return Math.max(0, total-elapsed);
+}
+function fmtClock(ms) {
+  const s = Math.ceil(ms/1000), mm = Math.floor(s/60), ss = s%60;
+  return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function pauseTimer() {
+  if(match.timer.startedAt){ match.timer.accumMs += Date.now()-match.timer.startedAt; match.timer.startedAt = null; }
+}
+function toggleTimer() {
+  if(!match||match.status!=='active')return;
+  if(match.timer.startedAt) pauseTimer();
+  else match.timer.startedAt = Date.now();
+  save(); updateUI(); syncFb();
+}
+function tickTimer() {
+  if(!match||match.status!=='active')return;
+  const el = document.getElementById('qClock'); if(!el)return;
+  const rem = remainingMs(match);
+  el.textContent = fmtClock(rem);
+  el.style.color = rem<=60000 ? 'var(--red)' : '';
+}
+setInterval(tickTimer, 500);
 
 // ─── derived state (single source of truth = match.events) ────────────────────
 function computeScore(m) {
@@ -612,6 +649,7 @@ function confirmAction() {
 function endQuarter() {
   if(!match||match.status!=='active')return;
   if(!confirm('End Quarter '+match.quarter+'?'))return;
+  pauseTimer();
   if(match.quarter>=match.numQuarters){ finishMatch(); return; }
   const s = computeScore(match);
   document.getElementById('qbTitle').textContent = 'End of Quarter '+match.quarter;
@@ -621,6 +659,7 @@ function endQuarter() {
 }
 function startNextQuarter() {
   match.quarter++;
+  match.timer = {startedAt:Date.now(), accumMs:0};
   save(); showScr('scoring'); updateUI(); syncFb();
 }
 function finishMatch() {
@@ -646,6 +685,8 @@ function updateUI() {
   document.getElementById('goalLblA').textContent = match.teams[0].name;
   document.getElementById('goalLblB').textContent = match.teams[1].name;
   document.getElementById('qNum').textContent = match.quarter;
+  document.getElementById('timerBtn').innerHTML = match.timer.startedAt ? '&#9208; Pause' : '&#9654; Resume';
+  tickTimer();
 
   const parts = [0,1].map(ti=>{
     const c=cardsTally(match,ti), pc=pcStats(match,ti), st=strokeStats(match,ti);
@@ -798,7 +839,7 @@ function syncFb() {
       date:match.date, venue:match.venue, format:match.format,
       quarterMinutes:match.quarterMinutes, numQuarters:match.numQuarters, quarter:match.quarter,
       status:match.status, result:match.result, updatedAt:Date.now(),
-      events:match.events
+      events:match.events, timer:match.timer
     });
   } catch(e) { console.warn('Ably:', e.message); }
 }
@@ -813,7 +854,10 @@ function syncFb() {
 loadSettings();
 renderHome();
 const _saved = JSON.parse(localStorage.getItem('cs_h')||'[]').find(m=>m.status==='active');
-if(_saved) match = _saved;
+if(_saved) {
+  if(!_saved.timer) _saved.timer = {startedAt:Date.now(), accumMs:0};
+  match = _saved;
+}
 </script>
 </body>
 </html>

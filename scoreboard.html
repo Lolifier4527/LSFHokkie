@@ -133,6 +133,25 @@ const matchId=params.get('match');
 
 function getSetting(k){return JSON.parse(localStorage.getItem('cs_settings')||'{}')[k]||'';}
 
+function remainingMs(m){
+  if(!m||!m.timer) return null;
+  const total=(m.quarterMinutes||15)*60000;
+  const elapsed=m.timer.accumMs+(m.timer.startedAt?Date.now()-m.timer.startedAt:0);
+  return Math.max(0,total-elapsed);
+}
+function fmtClock(ms){
+  const s=Math.ceil(ms/1000), mm=Math.floor(s/60), ss=s%60;
+  return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+}
+function tickTimer(){
+  const m=window._sbMatch; if(!m||m.status!=='active')return;
+  const el=document.getElementById('qClock'); if(!el)return;
+  const rem=remainingMs(m); if(rem===null)return;
+  el.textContent=fmtClock(rem)+(m.timer.startedAt?'':' (paused)');
+  el.style.color=rem<=60000?'var(--red)':'';
+}
+setInterval(tickTimer,500);
+
 function computeScore(m){
   const s=[0,0];
   (m.events||[]).forEach(e=>{
@@ -194,6 +213,7 @@ function renderMatch(data){
       <div style="text-align:center;color:var(--muted)">
         <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">Quarter</div>
         <div style="font-size:22px;font-weight:900;color:var(--accent)">${m.quarter||1}</div>
+        <div id="qClock" style="font-size:14px;font-weight:800;margin-top:2px"></div>
       </div>
       <div style="text-align:center"><div class="score-big">${s[1]}</div><div class="score-sub">${(teams[1]||{}).name||''}</div></div>
     </div>
@@ -223,6 +243,8 @@ function renderMatch(data){
   if(upd)html+=`<div class="updated">Last updated ${upd}</div>`;
 
   document.getElementById('root').innerHTML=html;
+  window._sbMatch=m;
+  tickTimer();
 }
 
 // Public viewers (other devices) subscribe read-only. Reusing the scorer's key
