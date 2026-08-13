@@ -30,11 +30,13 @@ body{display:flex;flex-direction:column}
 
 /* layout */
 .boards{display:flex;flex:1 1 auto;min-height:0;width:100vw}
-.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14vh 2vw 2vh;min-width:0;overflow:hidden}
+.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20vh 2vw 2vh;min-width:0;overflow:hidden}
 .board.left{border-right:2px solid var(--accent);box-shadow:2px 0 12px rgba(234,179,8,.25)}
 #panel-1,#panel-2{width:100%;min-width:0}
 
-.veld-label{position:absolute;top:2vh;left:50%;transform:translateX(-50%);font-size:clamp(32px,min(8vw,10vh),160px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.veld-header{position:absolute;top:2vh;left:50%;transform:translateX(-50%);text-align:center}
+.veld-label{font-size:clamp(32px,min(8vw,10vh),160px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.veld-clock{font-size:clamp(28px,min(4.5vw,5.5vh),88px);font-weight:800;color:#fff;margin-top:.5vh;white-space:nowrap;min-height:1em}
 
 /* idle state: fills the pane with the school badge. Sized off height (not
    just width) so it can't overflow/overlap on short, wide displays. */
@@ -50,11 +52,10 @@ body{display:flex;flex-direction:column}
 .score-row{display:flex;align-items:center;justify-content:center;gap:1.5vw}
 .team{text-align:center;min-width:0}
 .team .num{font-size:clamp(48px,7vw,260px);font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.team .nm{font-size:clamp(16px,2vw,34px);color:#fff;margin-top:1vh;max-width:12vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .nm{font-size:clamp(16px,2vw,34px);color:#fff;margin-bottom:1vh;max-width:14vw;overflow-wrap:break-word;line-height:1.15}
 .qwrap{text-align:center;color:#fff}
 .qwrap .qlbl{font-size:clamp(10px,1vw,16px);letter-spacing:.15em;text-transform:uppercase}
 .qwrap .qnum{font-size:clamp(22px,2.6vw,44px);font-weight:900;color:var(--accent)}
-.qwrap .qclock{font-size:clamp(14px,1.6vw,26px);font-weight:800;margin-top:.5vh}
 .result{margin-top:3vh;font-size:clamp(20px,3vw,40px);font-weight:800;color:var(--accent);text-align:center}
 </style>
 </head>
@@ -71,11 +72,17 @@ body{display:flex;flex-direction:column}
 
 <div class="boards">
   <div class="board left">
-    <div class="veld-label">Veld B</div>
+    <div class="veld-header">
+      <div class="veld-label">Veld B</div>
+      <div class="veld-clock" id="clock-2"></div>
+    </div>
     <div id="panel-2"></div>
   </div>
   <div class="board right">
-    <div class="veld-label">Veld A</div>
+    <div class="veld-header">
+      <div class="veld-label">Veld A</div>
+      <div class="veld-clock" id="clock-1"></div>
+    </div>
     <div id="panel-1"></div>
   </div>
 </div>
@@ -127,13 +134,12 @@ function renderActive(el, m){
   el.innerHTML = `<div class="active">
     <div class="matchup">${(teams[0]||{}).name||'Team 1'} vs ${(teams[1]||{}).name||'Team 2'}</div>
     <div class="score-row">
-      <div class="team"><div class="num">${s[0]}</div><div class="nm">${(teams[0]||{}).name||''}</div></div>
+      <div class="team"><div class="nm">${(teams[0]||{}).name||''}</div><div class="num">${s[0]}</div></div>
       <div class="qwrap">
         <div class="qlbl">Quarter</div>
         <div class="qnum">${m.quarter||1}</div>
-        <div class="qclock" data-clock></div>
       </div>
-      <div class="team"><div class="num">${s[1]}</div><div class="nm">${(teams[1]||{}).name||''}</div></div>
+      <div class="team"><div class="nm">${(teams[1]||{}).name||''}</div><div class="num">${s[1]}</div></div>
     </div>
     ${(m.status==='complete'&&m.result)?`<div class="result">🏆 ${m.result}</div>`:''}
   </div>`;
@@ -145,13 +151,12 @@ function renderBoard(field, panelId, data){
   renderActive(el, data);
 }
 function tickClocks(){
-  SIDES.forEach(({field,panel})=>{
-    const m = boardMatch[field];
-    if(!m||m.status!=='active') return;
-    const el = document.querySelector('#'+panel+' [data-clock]');
+  SIDES.forEach(({field})=>{
+    const el = document.getElementById('clock-'+field);
     if(!el) return;
-    const rem = remainingMs(m);
-    if(rem===null) return;
+    const m = boardMatch[field];
+    const rem = (m && m.status==='active') ? remainingMs(m) : null;
+    if(rem===null){ el.textContent=''; return; }
     el.textContent = fmtClock(rem);
     el.style.color = rem<=60000 ? 'var(--red)' : '';
   });
