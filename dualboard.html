@@ -30,31 +30,32 @@ body{display:flex;flex-direction:column}
 
 /* layout */
 .boards{display:flex;flex:1 1 auto;min-height:0;width:100vw}
-.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3vh 2vw;min-width:0;overflow:hidden}
+.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8vh 2vw 2vh;min-width:0;overflow:hidden}
 .board.left{border-right:2px solid var(--accent);box-shadow:2px 0 12px rgba(234,179,8,.25)}
 #panel-1,#panel-2{width:100%;min-width:0}
 
-.veld-label{position:absolute;top:4vh;left:50%;transform:translateX(-50%);font-size:clamp(32px,7vw,140px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.veld-label{position:absolute;top:2vh;left:50%;transform:translateX(-50%);font-size:clamp(16px,min(4vw,5vh),80px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
 
-/* idle state: fills the pane with the school badge */
-.idle{display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.9}
-.idle img{width:clamp(200px,30vw,700px);margin-bottom:3vh}
-.idle .name{font-size:clamp(48px,9.6vw,220px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.idle .sub{font-size:clamp(24px,3.9vw,80px);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-top:6px}
+/* idle state: fills the pane with the school badge. Sized off height (not
+   just width) so it can't overflow/overlap on short, wide displays. */
+.idle{display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.9;max-height:100%}
+.idle img{height:clamp(50px,min(18vw,18vh),300px);width:auto;margin-bottom:1.5vh}
+.idle .name{font-size:clamp(20px,min(6vw,7vh),110px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.idle .sub{font-size:clamp(10px,min(2.4vw,2.6vh),36px);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-top:6px}
 
 /* active state */
 .active{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
-.matchup{font-size:clamp(24px,3.2vw,64px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin-bottom:3vh;text-align:center;
+.matchup{font-size:clamp(16px,2vw,38px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin-bottom:2vh;text-align:center;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1vw}
 .score-row{display:flex;align-items:center;justify-content:center;gap:1.5vw}
 .team{text-align:center;min-width:0}
-.team .num{font-size:clamp(70px,11vw,420px);font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.team .nm{font-size:clamp(24px,3vw,56px);color:#fff;margin-top:1.5vh;max-width:14vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .num{font-size:clamp(48px,7vw,260px);font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.team .nm{font-size:clamp(16px,2vw,34px);color:#fff;margin-top:1vh;max-width:12vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qwrap{text-align:center;color:#fff}
-.qwrap .qlbl{font-size:clamp(14px,1.6vw,26px);letter-spacing:.15em;text-transform:uppercase}
-.qwrap .qnum{font-size:clamp(32px,4vw,72px);font-weight:900;color:var(--accent)}
-.qwrap .qclock{font-size:clamp(20px,2.4vw,40px);font-weight:800;margin-top:1vh}
-.result{margin-top:4vh;font-size:clamp(32px,4.8vw,66px);font-weight:800;color:var(--accent);text-align:center}
+.qwrap .qlbl{font-size:clamp(10px,1vw,16px);letter-spacing:.15em;text-transform:uppercase}
+.qwrap .qnum{font-size:clamp(22px,2.6vw,44px);font-weight:900;color:var(--accent)}
+.qwrap .qclock{font-size:clamp(14px,1.6vw,26px);font-weight:800;margin-top:.5vh}
+.result{margin-top:3vh;font-size:clamp(20px,3vw,40px);font-weight:800;color:var(--accent);text-align:center}
 </style>
 </head>
 <body>
