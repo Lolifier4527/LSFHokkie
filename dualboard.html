@@ -30,11 +30,11 @@ body{display:flex;flex-direction:column}
 
 /* layout */
 .boards{display:flex;flex:1 1 auto;min-height:0;width:100vw}
-.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8vh 2vw 2vh;min-width:0;overflow:hidden}
+.board{flex:1 1 50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14vh 2vw 2vh;min-width:0;overflow:hidden}
 .board.left{border-right:2px solid var(--accent);box-shadow:2px 0 12px rgba(234,179,8,.25)}
 #panel-1,#panel-2{width:100%;min-width:0}
 
-.veld-label{position:absolute;top:2vh;left:50%;transform:translateX(-50%);font-size:clamp(16px,min(4vw,5vh),80px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
+.veld-label{position:absolute;top:2vh;left:50%;transform:translateX(-50%);font-size:clamp(32px,min(8vw,10vh),160px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;white-space:nowrap}
 
 /* idle state: fills the pane with the school badge. Sized off height (not
    just width) so it can't overflow/overlap on short, wide displays. */
