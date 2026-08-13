@@ -29,7 +29,7 @@ body{display:flex;flex-direction:column}
 @keyframes splashIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 /* header */
-.dual-hdr{flex:0 0 auto;width:100%;background:linear-gradient(180deg,#14532d 0%,#0f3d21 100%);border-bottom:1px solid var(--glass-b);display:flex;align-items:center;justify-content:center;padding:1.2vh 0;box-shadow:0 1px 0 rgba(255,255,255,.04),0 4px 20px rgba(0,0,0,.5)}
+.dual-hdr{flex:0 0 auto;width:100%;background:linear-gradient(180deg,#a3e635 0%,#84cc16 100%);border-bottom:1px solid var(--glass-b);display:flex;align-items:center;justify-content:center;padding:1.2vh 0;box-shadow:0 1px 0 rgba(255,255,255,.04),0 4px 20px rgba(0,0,0,.5)}
 .dual-hdr img{height:clamp(36px,6vh,72px);width:auto}
 
 /* layout */
@@ -38,28 +38,23 @@ body{display:flex;flex-direction:column}
 .board.left{border-right:2px solid var(--accent);box-shadow:2px 0 12px rgba(234,179,8,.25)}
 #panel-1,#panel-2{width:100%;min-width:0}
 
-.veld-label{position:absolute;top:3vh;left:50%;transform:translateX(-50%);font-size:clamp(12px,1.6vw,20px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--t3)}
-.live-wrap{position:absolute;top:3vh;right:3vw;display:flex;align-items:center;gap:6px}
-.live-dot{width:9px;height:9px;border-radius:50%;background:var(--red);position:relative}
-.live-dot::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:var(--red);opacity:.4;animation:pulse 1.6s ease-out infinite}
-@keyframes pulse{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.2);opacity:0}}
-.live-txt{font-size:clamp(10px,1.1vw,14px);font-weight:700;color:var(--red);letter-spacing:.06em}
+.veld-label{position:absolute;top:3vh;left:50%;transform:translateX(-50%);font-size:clamp(12px,1.6vw,20px);font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff}
 
 /* idle state: fills the pane with the school badge */
 .idle{display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.9}
 .idle img{width:clamp(90px,14vw,220px);margin-bottom:3vh}
 .idle .name{font-size:clamp(20px,3.2vw,52px);font-weight:900;letter-spacing:.05em;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.idle .sub{font-size:clamp(10px,1.3vw,18px);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-top:6px}
+.idle .sub{font-size:clamp(10px,1.3vw,18px);font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-top:6px}
 
 /* active state */
 .active{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
-.matchup{font-size:clamp(12px,1.6vw,22px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:2vh;text-align:center;
+.matchup{font-size:clamp(12px,1.6vw,22px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin-bottom:2vh;text-align:center;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 1vw}
 .score-row{display:flex;align-items:center;justify-content:center;gap:3vw}
 .team{text-align:center;min-width:0}
 .team .num{font-size:clamp(64px,12vw,180px);font-weight:900;line-height:1;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.team .nm{font-size:clamp(14px,2vw,28px);color:var(--t2);margin-top:1vh;max-width:16vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.qwrap{text-align:center;color:var(--muted)}
+.team .nm{font-size:clamp(14px,2vw,28px);color:#fff;margin-top:1vh;max-width:16vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qwrap{text-align:center;color:#fff}
 .qwrap .qlbl{font-size:clamp(9px,1vw,13px);letter-spacing:.15em;text-transform:uppercase}
 .qwrap .qnum{font-size:clamp(20px,3vw,42px);font-weight:900;color:var(--accent)}
 .qwrap .qclock{font-size:clamp(13px,1.8vw,24px);font-weight:800;margin-top:.5vh}
@@ -85,12 +80,10 @@ body{display:flex;flex-direction:column}
 <div class="boards">
   <div class="board left">
     <div class="veld-label">Veld B</div>
-    <div class="live-wrap"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
     <div id="panel-2"></div>
   </div>
   <div class="board right">
     <div class="veld-label">Veld A</div>
-    <div class="live-wrap"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
     <div id="panel-1"></div>
   </div>
 </div>
